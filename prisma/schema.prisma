@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum SupplierType {
+  charter
+  manufacturer
+  school
+}
+
+enum SupplierStatus {
+  pending
+  active
+  blocked
+}
+
+enum ProfileStatus {
+  draft
+  published
+}
+
+enum ArticleCategory {
+  destination
+  route
+  boat
+  learning
+  tips
+  gear
+}
+
+enum ArticleStatus {
+  draft
+  review
+  published
+  rejected
+}
+
+enum QuizType {
+  article_charter
+  article_manufacturer
+  article_school
+  profile
+}
+
+enum QuizSessionStatus {
+  in_progress
+  completed
+}
+
+enum LeadSourceType {
+  article
+  profile
+  search
+}
+
+enum LeadIntent {
+  charter_booking
+  boat_purchase
+  school_enrollment
+  general
+}
+
+enum LeadStatus {
+  new_lead
+  seen
+  contacted
+  closed
+}
+
+enum UserRole {
+  supplier
+  superadmin
+}
+
+model Supplier {
+  id                   String         @id @default(uuid())
+  type                 SupplierType
+  name                 String         @db.VarChar(255)
+  slug                 String         @unique @db.VarChar(255)
+  email                String         @unique @db.VarChar(255)
+  passwordHash         String
+  role                 UserRole       @default(supplier)
+  status               SupplierStatus @default(pending)
+  tagline              String?        @db.VarChar(255)
+  description          String?
+  logoUrl              String?
+  coverImageUrl        String?
+  imageUrls            String[]
+  website              String?
+  contactEmail         String?
+  contactPhone         String?
+  regions              String[]
+  typeMeta             Json?
+  profileStatus        ProfileStatus  @default(draft)
+  profileQuizSessionId String?        @unique
+  profileQuizSession   QuizSession?   @relation("ProfileQuiz", fields: [profileQuizSessionId], references: [id])
+  createdAt            DateTime       @default(now())
+  updatedAt            DateTime       @updatedAt
+
+  articles     Article[]
+  quizSessions QuizSession[] @relation("SupplierQuizSessions")
+  leads        Lead[]
+}
+
+model Article {
+  id              String          @id @default(uuid())
+  supplierId      String
+  supplier        Supplier        @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierType    SupplierType
+  title           String          @db.VarChar(255)
+  slug            String          @unique @db.VarChar(255)
+  content         String
+  excerpt         String?
+  metaTitle       String?         @db.VarChar(60)
+  metaDescription String?         @db.VarChar(160)
+  category        ArticleCategory
+  region          String?         @db.VarChar(100)
+  tags            String[]
+  status          ArticleStatus   @default(draft)
+  coverImageUrl   String?
+  imageUrls       String[]
+  quizSessionId   String?         @unique
+  quizSession     QuizSession?    @relation(fields: [quizSessionId], references: [id])
+  viewsCount      Int             @default(0)
+  leadsCount      Int             @default(0)
+  publishedAt     DateTime?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  leads Lead[]
+
+  @@index([supplierId])
+  @@index([category])
+  @@index([status])
+  @@index([slug])
+}
+
+model QuizSession {
+  id             String            @id @default(uuid())
+  supplierId     String
+  supplier       Supplier          @relation("SupplierQuizSessions", fields: [supplierId], references: [id], onDelete: Cascade)
+  quizType       QuizType
+  answers        Json              @default("{}")
+  messages       Json              @default("[]")
+  currentStep    Int               @default(0)
+  imageUrls      String[]
+  status         QuizSessionStatus @default(in_progress)
+  generatedDraft String?
+  createdAt      DateTime          @default(now())
+  completedAt    DateTime?
+
+  article        Article?
+  profileSupplier Supplier? @relation("ProfileQuiz")
+
+  @@index([supplierId])
+}
+
+model Lead {
+  id          String         @id @default(uuid())
+  supplierId  String
+  supplier    Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  articleId   String?
+  article     Article?       @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  sourceType  LeadSourceType
+  intent      LeadIntent     @default(general)
+  name        String         @db.VarChar(255)
+  email       String         @db.VarChar(255)
+  phone       String?        @db.VarChar(50)
+  message     String?
+  destination String?        @db.VarChar(255)
+  dates       String?        @db.VarChar(100)
+  groupSize   Int?
+  status      LeadStatus     @default(new_lead)
+  createdAt   DateTime       @default(now())
+
+  @@index([supplierId])
+  @@index([articleId])
+  @@index([status])
+}
+
+model Category {
+  id                   String   @id @default(uuid())
+  slug                 String   @unique @db.VarChar(100)
+  name                 String   @db.VarChar(100)
+  description          String?
+  allowedSupplierTypes String[]
+  sortOrder            Int      @default(0)
+  isActive             Boolean  @default(true)
+}

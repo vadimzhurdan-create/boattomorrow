@@ -6,6 +6,8 @@ import { getAnthropic } from '@/lib/anthropic'
 import { getQuizConfig } from '@/lib/quiz-configs'
 import slugify from 'slugify'
 
+export const maxDuration = 60
+
 export async function POST(request: NextRequest) {
   try {
     const session = await getServerSession(authOptions)

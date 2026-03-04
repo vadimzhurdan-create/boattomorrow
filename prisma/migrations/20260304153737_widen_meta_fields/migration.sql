@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Article" ALTER COLUMN "metaTitle" SET DATA TYPE VARCHAR(255),
+ALTER COLUMN "metaDescription" SET DATA TYPE VARCHAR(500);

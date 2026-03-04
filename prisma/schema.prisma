@@ -117,8 +117,8 @@ model Article {
   slug            String          @unique @db.VarChar(255)
   content         String
   excerpt         String?
-  metaTitle       String?         @db.VarChar(60)
-  metaDescription String?         @db.VarChar(160)
+  metaTitle       String?         @db.VarChar(255)
+  metaDescription String?         @db.VarChar(500)
   category        ArticleCategory
   region          String?         @db.VarChar(100)
   tags            String[]

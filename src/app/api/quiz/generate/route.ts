@@ -140,10 +140,10 @@ export async function POST(request: NextRequest) {
     })
 
     return NextResponse.json({ data: article })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Quiz generate error:', error)
     return NextResponse.json(
-      { error: 'Failed to generate article' },
+      { error: 'Failed to generate article', details: error?.message || String(error) },
       { status: 500 }
     )
   }

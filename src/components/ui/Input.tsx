@@ -3,22 +3,39 @@ import { InputHTMLAttributes, forwardRef } from 'react'
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label?: string
   error?: string
+  editorial?: boolean
 }
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
-  ({ label, error, className = '', ...props }, ref) => {
+  ({ label, error, editorial, className = '', ...props }, ref) => {
+    if (editorial) {
+      return (
+        <div className="w-full">
+          <input
+            ref={ref}
+            className={`w-full border-0 border-b border-border bg-transparent py-3 text-base font-body placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors ${
+              error ? 'border-red-500' : ''
+            } ${className}`}
+            placeholder={label}
+            {...props}
+          />
+          {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+        </div>
+      )
+    }
+
     return (
       <div className="w-full">
         {label && (
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-text mb-1">
             {label}
-            {props.required && <span className="text-red-500 ml-1">*</span>}
+            {props.required && <span className="text-accent ml-1">*</span>}
           </label>
         )}
         <input
           ref={ref}
-          className={`w-full px-3 py-2 border rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent ${
-            error ? 'border-red-500' : 'border-gray-300'
+          className={`w-full px-3 py-2 border border-border bg-transparent text-text placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors ${
+            error ? 'border-red-500' : ''
           } ${className}`}
           {...props}
         />

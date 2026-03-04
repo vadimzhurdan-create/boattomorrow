@@ -5,7 +5,7 @@ import { SupplierCard } from '@/components/suppliers/SupplierCard'
 import { supplierTypeLabels } from '@/lib/utils'
 
 export const metadata: Metadata = {
-  title: 'Our Suppliers',
+  title: 'Suppliers',
   description: 'Browse trusted yacht charter companies, boat manufacturers, and sailing schools on BOATTOMORROW.',
 }
 
@@ -42,23 +42,22 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
   })
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-900">Our Suppliers</h1>
-        <p className="mt-3 text-lg text-gray-600">
-          Trusted partners in the yachting industry, from charter companies to sailing schools.
-        </p>
+      <div className="border-b border-border pb-6 mb-8">
+        <h1 className="text-2xl font-light font-body tracking-tight">
+          <span className="text-accent mr-1">/</span> suppliers
+        </h1>
       </div>
 
-      {/* Type Filter */}
-      <div className="mb-8 flex flex-wrap gap-2">
+      {/* Filters */}
+      <div className="flex flex-wrap gap-2 mb-8">
         <Link
           href="/suppliers"
-          className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+          className={`px-3 py-1.5 text-xs border transition-all ${
             !selectedType
-              ? 'bg-primary-600 text-white'
-              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+              ? 'bg-text text-bg border-text'
+              : 'bg-transparent text-text border-border hover:bg-text hover:text-bg hover:border-text'
           }`}
         >
           All Types
@@ -67,10 +66,10 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
           <Link
             key={type.value}
             href={`/suppliers?type=${type.value}`}
-            className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
+            className={`px-3 py-1.5 text-xs border transition-all ${
               selectedType === type.value
-                ? 'bg-primary-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                ? 'bg-text text-bg border-text'
+                : 'bg-transparent text-text border-border hover:bg-text hover:text-bg hover:border-text'
             }`}
           >
             {type.label}
@@ -78,26 +77,23 @@ export default async function SuppliersPage({ searchParams }: PageProps) {
         ))}
       </div>
 
-      {/* Results Count */}
-      <p className="text-sm text-gray-500 mb-6">
-        {suppliers.length} {suppliers.length === 1 ? 'supplier' : 'suppliers'} found
+      {/* Count */}
+      <p className="text-xs text-muted uppercase tracking-widest mb-8">
+        {suppliers.length} {suppliers.length === 1 ? 'supplier' : 'suppliers'}
         {selectedType && ` (${supplierTypeLabels[selectedType] || selectedType})`}
       </p>
 
       {/* Suppliers Grid */}
       {suppliers.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8">
           {suppliers.map((supplier) => (
             <SupplierCard key={supplier.slug} supplier={supplier} />
           ))}
         </div>
       ) : (
-        <div className="text-center py-16">
-          <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-          </svg>
-          <h3 className="mt-4 text-lg font-medium text-gray-900">No suppliers found</h3>
-          <p className="mt-2 text-gray-500">
+        <div className="text-center py-24 border-t border-border">
+          <h3 className="font-display text-xl font-light mb-2">No suppliers found</h3>
+          <p className="text-sm text-muted">
             {selectedType
               ? `No ${supplierTypeLabels[selectedType] || selectedType} suppliers yet.`
               : 'No suppliers published yet. Check back soon!'}

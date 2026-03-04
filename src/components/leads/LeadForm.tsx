@@ -1,9 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '../ui/Button'
-import { Input } from '../ui/Input'
-import { Textarea } from '../ui/Textarea'
 import toast from 'react-hot-toast'
 
 interface LeadFormProps {
@@ -21,10 +18,17 @@ export function LeadForm({ supplierId, articleId, intent, sourceType, prefillDes
   const [isSubmitted, setIsSubmitted] = useState(false)
 
   const intentLabels: Record<string, string> = {
-    charter_booking: 'Find a Yacht',
-    boat_purchase: 'Get a Quote',
-    school_enrollment: 'Enroll in Course',
-    general: 'Send Inquiry',
+    charter_booking: 'Send inquiry',
+    boat_purchase: 'Request a quote',
+    school_enrollment: 'Enroll now',
+    general: 'Send inquiry',
+  }
+
+  const intentTitles: Record<string, string> = {
+    charter_booking: 'Interested in chartering here?',
+    boat_purchase: 'Want to learn more about this boat?',
+    school_enrollment: 'Ready to start sailing?',
+    general: 'Get in touch',
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -67,74 +71,120 @@ export function LeadForm({ supplierId, articleId, intent, sourceType, prefillDes
 
   if (isSubmitted) {
     return (
-      <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-        <div className="text-green-600 mb-2">
-          <svg className="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-semibold text-green-800">Inquiry Sent!</h3>
-        <p className="text-green-700 mt-1">The supplier will contact you within 24 hours.</p>
+      <div className="border-t border-b border-border py-10 my-12 text-center">
+        <p className="text-xs uppercase tracking-widest text-muted mb-3">Thank you</p>
+        <h3 className="font-display text-xl font-light">Inquiry sent successfully</h3>
+        <p className="text-sm text-muted mt-2">The supplier will contact you within 24 hours.</p>
       </div>
     )
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      {/* Honeypot */}
-      <div className="hidden">
-        <input type="text" name="website_url" tabIndex={-1} autoComplete="off" />
-      </div>
+    <div className="border-t border-b border-border py-10 my-8">
+      <h3 className="font-display text-xl font-light mb-6">
+        {intentTitles[intent]}
+      </h3>
 
-      <Input name="name" label="Name" required placeholder="Your name" />
-      <Input name="email" label="Email" type="email" required placeholder="your@email.com" />
-      <Input name="phone" label="Phone" type="tel" placeholder="+1 234 567 890" />
+      <form onSubmit={handleSubmit} className="space-y-1">
+        {/* Honeypot */}
+        <div className="hidden">
+          <input type="text" name="website_url" tabIndex={-1} autoComplete="off" />
+        </div>
 
-      {(intent === 'charter_booking' || intent === 'general') && (
-        <>
-          <Input
+        <input
+          name="name"
+          required
+          placeholder="Name"
+          className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+        />
+        <input
+          name="email"
+          type="email"
+          required
+          placeholder="Email"
+          className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+        />
+        <input
+          name="phone"
+          type="tel"
+          placeholder="Phone (optional)"
+          className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+        />
+
+        {(intent === 'charter_booking' || intent === 'general') && (
+          <>
+            <input
+              name="destination"
+              placeholder="Destination / Region"
+              defaultValue={prefillDestination || ''}
+              className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+            />
+            <input
+              name="dates"
+              placeholder="Approximate dates"
+              className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+            />
+            <input
+              name="groupSize"
+              type="number"
+              min="1"
+              placeholder="Group size"
+              className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+            />
+          </>
+        )}
+
+        {intent === 'boat_purchase' && (
+          <input
             name="destination"
-            label="Destination / Region"
-            placeholder="Where would you like to sail?"
-            defaultValue={prefillDestination || ''}
+            placeholder="Model of interest"
+            defaultValue={prefillModel || ''}
+            className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
           />
-          <Input name="dates" label="Approximate Dates" placeholder="e.g., June 15-22, 2025" />
-          <Input name="groupSize" label="Group Size" type="number" min="1" placeholder="Number of people" />
-        </>
-      )}
+        )}
 
-      {intent === 'boat_purchase' && (
-        <Input
-          name="destination"
-          label="Model of Interest"
-          placeholder="Which yacht model?"
-          defaultValue={prefillModel || ''}
+        {intent === 'school_enrollment' && (
+          <input
+            name="destination"
+            placeholder="Course of interest"
+            defaultValue={prefillCourse || ''}
+            className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors"
+          />
+        )}
+
+        <textarea
+          name="message"
+          rows={3}
+          placeholder="Tell us about your plans..."
+          className="w-full border-0 border-b border-border bg-transparent py-3 text-base placeholder:text-muted/60 focus:outline-none focus:border-text transition-colors resize-none"
         />
-      )}
 
-      {intent === 'school_enrollment' && (
-        <Input
-          name="destination"
-          label="Course of Interest"
-          placeholder="Which course?"
-          defaultValue={prefillCourse || ''}
-        />
-      )}
+        <div className="flex justify-end pt-6">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex items-center gap-2 bg-accent text-white px-6 py-3 text-sm font-medium tracking-wide hover:opacity-85 transition-opacity disabled:opacity-50"
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Sending...
+              </>
+            ) : (
+              <>
+                {intentLabels[intent]} <span aria-hidden="true">&rarr;</span>
+              </>
+            )}
+          </button>
+        </div>
 
-      <Textarea
-        name="message"
-        label="Message"
-        placeholder="Tell us about your plans..."
-        rows={3}
-      />
-
-      <Button type="submit" isLoading={isSubmitting} className="w-full" size="lg">
-        {intentLabels[intent]}
-      </Button>
-
-      <p className="text-xs text-gray-500 text-center">
-        Your data will be shared with the supplier to process your inquiry.
-      </p>
-    </form>
+        <p className="text-xs text-muted text-right pt-2">
+          Your data will be shared with the supplier to process your inquiry.
+        </p>
+      </form>
+    </div>
   )
 }

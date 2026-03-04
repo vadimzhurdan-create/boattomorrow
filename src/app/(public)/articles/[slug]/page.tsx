@@ -5,9 +5,10 @@ import { notFound } from 'next/navigation'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { prisma } from '@/lib/prisma'
-import { Badge } from '@/components/ui/Badge'
 import { LeadForm } from '@/components/leads/LeadForm'
-import { categoryLabels, supplierTypeLabels, formatDate } from '@/lib/utils'
+import { ArticleCard } from '@/components/articles/ArticleCard'
+import { formatDate } from '@/lib/utils'
+import { SectionHeading } from '@/components/ui/SectionHeading'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -62,14 +63,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 function getIntentForSupplierType(type: string): 'charter_booking' | 'boat_purchase' | 'school_enrollment' | 'general' {
   switch (type) {
-    case 'charter':
-      return 'charter_booking'
-    case 'manufacturer':
-      return 'boat_purchase'
-    case 'school':
-      return 'school_enrollment'
-    default:
-      return 'general'
+    case 'charter': return 'charter_booking'
+    case 'manufacturer': return 'boat_purchase'
+    case 'school': return 'school_enrollment'
+    default: return 'general'
   }
 }
 
@@ -88,6 +85,24 @@ export default async function ArticlePage({ params }: PageProps) {
   }).catch(() => {})
 
   const intent = getIntentForSupplierType(article.supplier.type)
+
+  // Get related articles
+  const relatedArticles = await prisma.article.findMany({
+    where: {
+      status: 'published',
+      category: article.category,
+      id: { not: article.id },
+    },
+    take: 3,
+    orderBy: { publishedAt: 'desc' },
+    select: {
+      slug: true,
+      title: true,
+      category: true,
+      coverImageUrl: true,
+      supplier: { select: { name: true, slug: true, type: true } },
+    },
+  })
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -119,176 +134,126 @@ export default async function ArticlePage({ params }: PageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* Cover Image */}
-      {article.coverImageUrl && (
-        <div className="relative w-full h-64 md:h-96 bg-gray-100">
-          <Image
-            src={article.coverImageUrl}
-            alt={article.title}
-            fill
-            className="object-cover"
-            priority
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
-        </div>
-      )}
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <div className="lg:grid lg:grid-cols-3 lg:gap-12">
-          {/* Main Content */}
-          <div className="lg:col-span-2">
-            {/* Article Header */}
-            <div className="mb-8">
-              <div className="flex flex-wrap items-center gap-2 mb-4">
-                <Badge className="bg-primary-100 text-primary-700">
-                  {categoryLabels[article.category] || article.category}
-                </Badge>
-                {article.region && (
-                  <Badge className="bg-gray-100 text-gray-700">
-                    {article.region}
-                  </Badge>
-                )}
-              </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
-                {article.title}
-              </h1>
-              {article.excerpt && (
-                <p className="mt-4 text-lg text-gray-600">{article.excerpt}</p>
-              )}
-              <div className="mt-4 flex items-center gap-4 text-sm text-gray-500">
-                {article.publishedAt && (
-                  <time dateTime={article.publishedAt.toISOString()}>
-                    {formatDate(article.publishedAt)}
-                  </time>
-                )}
-                <span>by{' '}
-                  <Link
-                    href={`/suppliers/${article.supplier.slug}`}
-                    className="text-primary-600 hover:text-primary-700 font-medium"
-                  >
-                    {article.supplier.name}
-                  </Link>
-                </span>
-              </div>
-            </div>
-
-            {/* Article Content */}
-            <div className="prose prose-lg max-w-none prose-headings:text-gray-900 prose-a:text-primary-600 prose-img:rounded-xl">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {article.content}
-              </ReactMarkdown>
-            </div>
-
-            {/* Image Gallery */}
-            {article.imageUrls.length > 0 && (
-              <div className="mt-12">
-                <h2 className="text-2xl font-bold text-gray-900 mb-6">Gallery</h2>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {article.imageUrls.map((url, index) => (
-                    <div key={index} className="relative aspect-video bg-gray-100 rounded-xl overflow-hidden">
-                      <Image
-                        src={url}
-                        alt={`${article.title} - Image ${index + 1}`}
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        {/* Article Header */}
+        <header className="max-w-3xl mx-auto pt-12 pb-8">
+          {/* Meta */}
+          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-muted mb-6">
+            <Link href={`/${article.category === 'destination' ? 'destinations' : article.category === 'boat' ? 'boats' : article.category}`} className="hover:text-text transition-colors">
+              <span className="text-accent">/</span> {article.category}
+            </Link>
+            {article.region && (
+              <>
+                <span className="text-border">/</span>
+                <span>{article.region}</span>
+              </>
             )}
-
-            {/* Tags */}
-            {article.tags.length > 0 && (
-              <div className="mt-8 pt-8 border-t border-gray-200">
-                <div className="flex flex-wrap gap-2">
-                  {article.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="px-3 py-1 bg-gray-100 text-gray-600 text-sm rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                </div>
-              </div>
+            {article.publishedAt && (
+              <>
+                <span className="text-border">/</span>
+                <time dateTime={article.publishedAt.toISOString()}>
+                  {formatDate(article.publishedAt)}
+                </time>
+              </>
             )}
-
-            {/* Mobile Lead Form */}
-            <div className="lg:hidden mt-12">
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Interested? Get in touch</h3>
-                <LeadForm
-                  supplierId={article.supplier.id}
-                  articleId={article.id}
-                  intent={intent}
-                  sourceType="article"
-                  prefillDestination={article.region || undefined}
-                />
-              </div>
-            </div>
           </div>
 
-          {/* Sidebar */}
-          <aside className="hidden lg:block">
-            <div className="sticky top-8 space-y-6">
-              {/* Supplier Card */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <div className="flex items-center gap-4 mb-4">
-                  <div className="relative w-14 h-14 flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden">
-                    {article.supplier.logoUrl ? (
-                      <Image
-                        src={article.supplier.logoUrl}
-                        alt={article.supplier.name}
-                        fill
-                        className="object-contain"
-                      />
-                    ) : (
-                      <div className="flex items-center justify-center h-full text-primary-600 font-bold text-xl">
-                        {article.supplier.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">{article.supplier.name}</h3>
-                    <Badge className="bg-primary-50 text-primary-700">
-                      {supplierTypeLabels[article.supplier.type] || article.supplier.type}
-                    </Badge>
-                  </div>
-                </div>
+          {/* Title */}
+          <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-light leading-tight tracking-tight">
+            {article.title}
+          </h1>
 
-                {article.supplier.tagline && (
-                  <p className="text-sm text-gray-600 mb-3">{article.supplier.tagline}</p>
-                )}
-
-                {article.supplier.regions.length > 0 && (
-                  <p className="text-xs text-gray-500 mb-4">
-                    Regions: {article.supplier.regions.join(', ')}
-                  </p>
-                )}
-
-                <Link
-                  href={`/suppliers/${article.supplier.slug}`}
-                  className="block w-full text-center px-4 py-2 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors"
-                >
-                  View Full Profile
-                </Link>
-              </div>
-
-              {/* Lead Form */}
-              <div className="bg-white rounded-xl border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Interested? Get in touch</h3>
-                <LeadForm
-                  supplierId={article.supplier.id}
-                  articleId={article.id}
-                  intent={intent}
-                  sourceType="article"
-                  prefillDestination={article.region || undefined}
+          {/* Supplier line */}
+          <div className="mt-6 flex items-center gap-3 py-4 border-t border-b border-border">
+            <div className="w-8 h-8 flex-shrink-0 border border-border flex items-center justify-center overflow-hidden">
+              {article.supplier.logoUrl ? (
+                <Image
+                  src={article.supplier.logoUrl}
+                  alt={article.supplier.name}
+                  width={32}
+                  height={32}
+                  className="object-contain"
                 />
-              </div>
+              ) : (
+                <span className="text-xs font-medium">{article.supplier.name.charAt(0)}</span>
+              )}
             </div>
-          </aside>
+            <div className="text-sm">
+              <span className="text-muted">by </span>
+              <Link
+                href={`/suppliers/${article.supplier.slug}`}
+                className="text-text hover:opacity-50 transition-opacity"
+              >
+                {article.supplier.name}
+              </Link>
+              <span className="text-xs text-accent ml-2 uppercase tracking-wider">
+                {article.supplier.type}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        {/* Cover Image */}
+        {article.coverImageUrl && (
+          <div className="w-full overflow-hidden" style={{ aspectRatio: '16/9' }}>
+            <Image
+              src={article.coverImageUrl}
+              alt={article.title}
+              width={1400}
+              height={788}
+              className="w-full h-full object-cover"
+              priority
+            />
+          </div>
+        )}
+
+        {/* Article Body */}
+        <div className="prose-editorial py-12">
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {article.content}
+          </ReactMarkdown>
         </div>
+
+        {/* Tags */}
+        {article.tags.length > 0 && (
+          <div className="max-w-[680px] mx-auto pb-8 border-b border-border">
+            <div className="flex flex-wrap gap-2">
+              {article.tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="px-3 py-1 text-xs text-muted border border-border"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Lead Form */}
+        <div className="max-w-[680px] mx-auto">
+          <LeadForm
+            supplierId={article.supplier.id}
+            articleId={article.id}
+            intent={intent}
+            sourceType="article"
+            prefillDestination={article.region || undefined}
+          />
+        </div>
+
+        {/* Related Articles */}
+        {relatedArticles.length > 0 && (
+          <section className="py-12">
+            <SectionHeading viewAllHref={`/${article.category === 'destination' ? 'destinations' : article.category === 'boat' ? 'boats' : article.category}`}>
+              read next
+            </SectionHeading>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {relatedArticles.map((a) => (
+                <ArticleCard key={a.slug} article={a} />
+              ))}
+            </div>
+          </section>
+        )}
       </div>
     </>
   )

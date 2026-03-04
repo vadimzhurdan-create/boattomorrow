@@ -1,10 +1,18 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@300;400;600;700&family=DM+Sans:wght@300;400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   body {
-    @apply text-gray-900 bg-white;
+    @apply bg-bg text-text;
+    font-family: 'DM Sans', system-ui, sans-serif;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
   }
 }
 
@@ -23,14 +31,81 @@
   }
 }
 
-/* Markdown content styles */
-.prose h1 { @apply text-3xl font-bold mb-4 mt-8; }
-.prose h2 { @apply text-2xl font-semibold mb-3 mt-6; }
-.prose h3 { @apply text-xl font-semibold mb-2 mt-4; }
-.prose p { @apply mb-4 leading-relaxed; }
-.prose ul { @apply list-disc pl-6 mb-4; }
-.prose ol { @apply list-decimal pl-6 mb-4; }
-.prose li { @apply mb-1; }
-.prose blockquote { @apply border-l-4 border-primary-300 pl-4 italic text-gray-600 my-4; }
-.prose img { @apply rounded-lg my-4; }
-.prose a { @apply text-primary-600 hover:text-primary-800 underline; }
+/* Animation keyframes */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-animate {
+  animation: fadeUp 0.5s ease both;
+}
+.section-animate:nth-child(1) { animation-delay: 0s; }
+.section-animate:nth-child(2) { animation-delay: 0.1s; }
+.section-animate:nth-child(3) { animation-delay: 0.2s; }
+.section-animate:nth-child(4) { animation-delay: 0.3s; }
+
+/* Article body markdown styles */
+.prose-editorial {
+  max-width: 680px;
+  margin: 0 auto;
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+.prose-editorial h1 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 2rem;
+  line-height: 1.3;
+  margin: 2.5rem 0 0.75rem;
+}
+.prose-editorial h2 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  line-height: 1.3;
+  margin: 2.5rem 0 0.75rem;
+}
+.prose-editorial h3 {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-weight: 600;
+  font-size: 1.25rem;
+  line-height: 1.4;
+  margin: 2rem 0 0.5rem;
+}
+.prose-editorial p {
+  margin-bottom: 1.25rem;
+  color: #111111;
+}
+.prose-editorial ul {
+  list-style-type: disc;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose-editorial ol {
+  list-style-type: decimal;
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+.prose-editorial li {
+  margin-bottom: 0.35rem;
+}
+.prose-editorial blockquote {
+  border-left: 3px solid #E5E4DF;
+  padding-left: 1.25rem;
+  font-style: italic;
+  color: #777777;
+  margin: 1.5rem 0;
+}
+.prose-editorial img {
+  width: 100%;
+  margin: 1.5rem 0;
+}
+.prose-editorial a {
+  color: #E8500A;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-editorial strong {
+  font-weight: 600;
+}

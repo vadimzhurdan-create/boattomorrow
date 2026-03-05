@@ -10,15 +10,17 @@ PUNCTUATION:
 - Semicolons: avoid unless absolutely necessary.
 
 BANNED WORDS (replace with simpler, more natural alternatives):
-delve, tapestry, realm, beacon, landscape (abstract), pivotal, crucial,
+delve, tapestry, realm, beacon, nestled, landscape (abstract), pivotal, crucial,
 comprehensive, leverage (verb), utilize, facilitate, demonstrate (verb),
 underscore (verb), testament, vibrant, bolster, garner, interplay,
 intricate, meticulous, enduring, fostering, showcasing, align with,
 game-changer, groundbreaking, cutting-edge, revolutionary, transformative,
-seamless, unlock, discover (as CTA verb)
+seamless, unlock, discover (as CTA verb),
+breathtaking, unforgettable, world-class, paradise, stunning, crystal-clear,
+luxury, exclusive
 
 BANNED PHRASES:
-- "It is worth noting that"
+- "It is worth noting that" / "It is worth noting"
 - "It is important to note"
 - "In today's [adjective] world"
 - "When it comes to"
@@ -28,12 +30,21 @@ BANNED PHRASES:
 - "could potentially" / "might possibly"
 - "Whether you're a X or a Y"
 - Any sentence starting with "Certainly"
+- "dream vacation" / "dream holiday"
+- "paradise on earth"
+- "luxury experience"
+- "adventure of a lifetime"
+- "hidden gem"
+- "Don't worry" (patronizing)
+- "one can observe" / "one can see" (impersonal passive)
+- "perfect" without justification (use "ideal for..." with a reason instead)
 
 SENTENCE RHYTHM:
 - Vary sentence length deliberately. Short sentences have power. Use them.
 - After a complex sentence, follow with a short one.
 - Not every paragraph needs to be 3-4 sentences. Two-sentence paragraphs are fine.
 - One-sentence paragraphs are occasionally powerful. Use them.
+- Alternate: short (5-8 words) after long (15-25 words). Never two long sentences in a row.
 
 REGISTER:
 - Write like a knowledgeable sailor, not a corporate brochure.
@@ -42,6 +53,11 @@ REGISTER:
 - Use concrete details from the source material.
 - It's okay to have a point of view. "Most sailors overestimate the difficulty
   of this passage" is better than "The passage requires experience."
+- Every paragraph should contain at least one concrete number, name, or sensory detail.
+- Never use passive voice where active works. Not "The coast is visited by many sailors"
+  but "Thousands of sailors return to this coast every season."
+- Prices in EUR, distances in nautical miles (NM), wind in Beaufort scale.
+- British English for nautical terms (harbour, metre) but otherwise natural English.
 
 STRUCTURE:
 - The intro should drop the reader into a scene or a specific fact.

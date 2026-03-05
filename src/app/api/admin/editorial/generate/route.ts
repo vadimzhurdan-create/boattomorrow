@@ -4,6 +4,7 @@ import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 import { getAnthropic, ARTICLE_GEN_MODEL } from '@/lib/anthropic'
 import { slugify } from '@/lib/utils'
+import { HUMANIZER_SYSTEM_PROMPT } from '@/lib/prompts/humanizer'
 
 const HUMANIZE_MODEL = 'claude-sonnet-4-6'
 
@@ -150,15 +151,19 @@ Output ONLY valid JSON with this exact structure:
 
     const articleData = JSON.parse(jsonMatch[0])
 
-    // 5. Humanize content with Sonnet
+    // 5. Humanize content with Sonnet (using shared HUMANIZER_SYSTEM_PROMPT)
     const humanizeResponse = await anthropic.messages.create({
       model: HUMANIZE_MODEL,
-      max_tokens: 4096,
+      max_tokens: 8192,
+      system: HUMANIZER_SYSTEM_PROMPT,
       messages: [
         {
           role: 'user',
-          content: `Rewrite this article to make it sound more natural and human-written. Preserve all information, links, and structure. Keep markdown formatting (## and ###). Make sentences flow naturally, vary paragraph lengths, add subtle personal touches. Do NOT add disclaimers or meta-commentary. Output ONLY the rewritten article text in markdown:
+          content: `Rewrite this article draft following your editorial rules.
+Preserve all factual information, the structure, and the SEO elements
+(H2 headings, FAQ section, key facts). Only change the style and language.
 
+ARTICLE:
 ${articleData.content}`,
         },
       ],

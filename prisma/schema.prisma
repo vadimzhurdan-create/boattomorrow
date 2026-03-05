@@ -250,10 +250,13 @@ model Subscriber {
   leadMagnet     String?                             // slug of lead magnet
   articleId      String?                             // which article they subscribed from
   categorySlug   String?                             // category of that article
+  nurturingStep  Int       @default(0)               // 0=lead magnet sent, 1=email2, 2=email3, 3=done
+  lastEmailAt    DateTime  @default(now())            // when last nurturing email was sent
   createdAt      DateTime  @default(now())
   unsubscribedAt DateTime?
 
   @@index([email])
+  @@index([nurturingStep, lastEmailAt])
 }
 
 model ArticleView {

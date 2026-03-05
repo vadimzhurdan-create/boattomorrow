@@ -1,0 +1,12 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/nurturing",
+      "schedule": "0 10 * * *"
+    },
+    {
+      "path": "/api/cron/monthly-report",
+      "schedule": "0 9 1 * *"
+    }
+  ]
+}

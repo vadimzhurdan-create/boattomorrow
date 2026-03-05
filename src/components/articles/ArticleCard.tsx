@@ -10,16 +10,23 @@ interface ArticleCardProps {
     region?: string | null
     coverImageUrl: string | null
     publishedAt?: string | Date | null
+    readingTime?: number | null
+    difficulty?: string | null
+    isEditorial?: boolean
     supplier?: {
       name: string
       slug: string
       type: string
-    }
+    } | null
   }
   featured?: boolean
 }
 
 export function ArticleCard({ article, featured }: ArticleCardProps) {
+  const authorName = article.isEditorial && !article.supplier
+    ? 'BOATTOMORROW Editorial'
+    : article.supplier?.name
+
   if (featured) {
     return (
       <Link href={`/articles/${article.slug}`} className="group block">
@@ -43,10 +50,10 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
         <div className="mt-4">
           <p className="text-xs uppercase tracking-widest text-muted mb-2">
             <span>{article.category}</span>
-            {article.supplier && (
+            {authorName && (
               <>
                 <span className="mx-2 text-accent">/</span>
-                <span>by {article.supplier.name}</span>
+                <span>by {authorName}</span>
               </>
             )}
           </p>
@@ -60,7 +67,7 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
 
   return (
     <Link href={`/articles/${article.slug}`} className="group block">
-      <div className="overflow-hidden" style={{ aspectRatio: '4/3' }}>
+      <div className="overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
         {article.coverImageUrl ? (
           <Image
             src={article.coverImageUrl}
@@ -76,13 +83,25 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
             </svg>
           </div>
         )}
+        {/* Difficulty badge */}
+        {article.difficulty === 'beginner' && (
+          <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] uppercase tracking-wider font-medium px-2 py-0.5">
+            Beginner-friendly
+          </span>
+        )}
       </div>
       <p className="mt-3 text-xs uppercase tracking-widest text-muted">
         <span>{article.category}</span>
-        {article.supplier && (
+        {authorName && (
           <>
             <span className="mx-2 text-accent">/</span>
-            <span>by {article.supplier.name}</span>
+            <span>by {authorName}</span>
+          </>
+        )}
+        {article.readingTime && (
+          <>
+            <span className="mx-2 text-border">/</span>
+            <span>{article.readingTime} min</span>
           </>
         )}
       </p>

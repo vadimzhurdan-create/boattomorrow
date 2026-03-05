@@ -110,8 +110,8 @@ model Supplier {
 
 model Article {
   id              String          @id @default(uuid())
-  supplierId      String
-  supplier        Supplier        @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  supplierId      String?
+  supplier        Supplier?       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
   supplierType    SupplierType
   title           String          @db.VarChar(255)
   slug            String          @unique @db.VarChar(255)
@@ -145,6 +145,12 @@ model Article {
 
   // Distribution kit
   socialPosts    Json?                    // [{ type: string, text: string }]
+
+  // Editorial & homepage fields
+  isFeatured   Boolean         @default(false)
+  isEditorial  Boolean         @default(false)
+  readingTime  Int?                                       // minutes
+  difficulty   String?         @db.VarChar(20)             // beginner | intermediate | advanced
 
   // Cornerstone architecture
   isCornerstone  Boolean         @default(false)

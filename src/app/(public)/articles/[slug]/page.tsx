@@ -56,7 +56,7 @@ async function getArticle(slug: string) {
     return null
   }
 
-  return article
+  return article as typeof article & { isEditorial: boolean; readingTime: number | null }
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -106,23 +106,25 @@ export default async function ArticlePage({ params }: PageProps) {
 
   // View tracking is handled by ViewTracker client component
 
-  const intent = getIntentForSupplierType(article.supplier.type)
+  const intent = article.supplier ? getIntentForSupplierType(article.supplier.type) : 'general' as const
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://boattomorrow.com'
 
   // Get related articles using smart algorithm
   const relatedArticles = await getRelatedArticles(article, 3)
 
   // Get other articles by same supplier
-  const supplierOtherArticles = await prisma.article.findMany({
-    where: {
-      supplierId: article.supplierId,
-      status: 'published',
-      id: { not: article.id },
-    },
-    take: 3,
-    orderBy: { publishedAt: 'desc' },
-    select: { slug: true, title: true },
-  })
+  const supplierOtherArticles = article.supplierId
+    ? await prisma.article.findMany({
+        where: {
+          supplierId: article.supplierId,
+          status: 'published',
+          id: { not: article.id },
+        },
+        take: 3,
+        orderBy: { publishedAt: 'desc' },
+        select: { slug: true, title: true },
+      })
+    : []
 
   // Parse GEO fields
   const faqItems = (article.faqItems as FaqItem[] | null) || []
@@ -137,10 +139,14 @@ export default async function ArticlePage({ params }: PageProps) {
     image: article.coverImageUrl,
     datePublished: article.publishedAt?.toISOString(),
     dateModified: article.updatedAt.toISOString(),
-    author: {
+    author: article.supplier ? {
       '@type': 'Organization',
       name: article.supplier.name,
       url: `${siteUrl}/suppliers/${article.supplier.slug}`,
+    } : {
+      '@type': 'Organization',
+      name: 'BOATTOMORROW Editorial',
+      url: siteUrl,
     },
     publisher: {
       '@type': 'Organization',
@@ -259,37 +265,57 @@ export default async function ArticlePage({ params }: PageProps) {
             </p>
           )}
 
-          {/* Supplier line */}
+          {/* Supplier / Editorial line */}
           <div className="mt-6 flex items-center gap-3 py-4 border-t border-b border-border">
-            <div className="w-8 h-8 flex-shrink-0 border border-border flex items-center justify-center overflow-hidden">
-              {article.supplier.logoUrl ? (
-                <Image
-                  src={article.supplier.logoUrl}
-                  alt={article.supplier.name}
-                  width={32}
-                  height={32}
-                  className="object-contain"
-                />
-              ) : (
-                <span className="text-xs font-medium">{article.supplier.name.charAt(0)}</span>
-              )}
-            </div>
-            <div className="text-sm flex items-center gap-1.5">
-              <span className="text-muted">by </span>
-              <Link
-                href={`/suppliers/${article.supplier.slug}`}
-                className="text-text hover:opacity-50 transition-opacity"
-              >
-                {article.supplier.name}
-              </Link>
-              <VerifiedBadge
-                supplier={article.supplier}
-                publishedArticles={article.supplier._count?.articles}
-              />
-              <span className="text-xs text-accent ml-1 uppercase tracking-wider">
-                {article.supplier.type}
-              </span>
-            </div>
+            {article.isEditorial && !article.supplier ? (
+              <>
+                <div className="w-8 h-8 flex-shrink-0 bg-accent text-white flex items-center justify-center text-xs font-bold">
+                  BT
+                </div>
+                <div className="text-sm flex items-center gap-1.5">
+                  <span className="text-muted">by </span>
+                  <span className="text-text font-medium">BOATTOMORROW Editorial</span>
+                  {article.readingTime && (
+                    <span className="text-xs text-muted ml-2">{article.readingTime} min read</span>
+                  )}
+                </div>
+              </>
+            ) : article.supplier ? (
+              <>
+                <div className="w-8 h-8 flex-shrink-0 border border-border flex items-center justify-center overflow-hidden">
+                  {article.supplier.logoUrl ? (
+                    <Image
+                      src={article.supplier.logoUrl}
+                      alt={article.supplier.name}
+                      width={32}
+                      height={32}
+                      className="object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs font-medium">{article.supplier.name.charAt(0)}</span>
+                  )}
+                </div>
+                <div className="text-sm flex items-center gap-1.5">
+                  <span className="text-muted">by </span>
+                  <Link
+                    href={`/suppliers/${article.supplier.slug}`}
+                    className="text-text hover:opacity-50 transition-opacity"
+                  >
+                    {article.supplier.name}
+                  </Link>
+                  <VerifiedBadge
+                    supplier={article.supplier}
+                    publishedArticles={article.supplier._count?.articles}
+                  />
+                  <span className="text-xs text-accent ml-1 uppercase tracking-wider">
+                    {article.supplier.type}
+                  </span>
+                  {article.readingTime && (
+                    <span className="text-xs text-muted ml-2">{article.readingTime} min read</span>
+                  )}
+                </div>
+              </>
+            ) : null}
           </div>
 
           {/* Byline text — E-E-A-T signal */}
@@ -336,7 +362,7 @@ export default async function ArticlePage({ params }: PageProps) {
               {article.supplierQuote}
             </p>
             <cite className="block mt-2 text-xs text-muted not-italic uppercase tracking-widest">
-              {article.supplier.name}
+              {article.supplier?.name || 'BOATTOMORROW'}
             </cite>
           </blockquote>
         )}
@@ -344,9 +370,9 @@ export default async function ArticlePage({ params }: PageProps) {
         {/* Article Body with Inline CTAs */}
         <ArticleContent
           content={article.content}
-          supplierId={article.supplier.id}
+          supplierId={article.supplier?.id || ''}
           articleId={article.id}
-          supplierType={article.supplier.type}
+          supplierType={(article.supplier?.type || 'charter') as any}
           destination={article.region || undefined}
         />
 
@@ -367,52 +393,54 @@ export default async function ArticlePage({ params }: PageProps) {
         )}
 
         {/* Supplier Card with other articles */}
-        <div className="max-w-[680px] mx-auto py-8 border-b border-border">
-          <div className="flex items-start gap-4">
-            <div className="w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center overflow-hidden">
-              {article.supplier.logoUrl ? (
-                <Image
-                  src={article.supplier.logoUrl}
-                  alt={article.supplier.name}
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                />
-              ) : (
-                <span className="text-lg font-medium">{article.supplier.name.charAt(0)}</span>
-              )}
-            </div>
-            <div className="flex-1">
-              <Link
-                href={`/suppliers/${article.supplier.slug}`}
-                className="text-sm font-medium text-text hover:opacity-50 transition-opacity"
-              >
-                {article.supplier.name}
-              </Link>
-              {article.supplier.tagline && (
-                <p className="text-xs text-muted mt-1">{article.supplier.tagline}</p>
-              )}
-              {supplierOtherArticles.length > 0 && (
-                <div className="mt-3">
-                  <p className="text-xs uppercase tracking-widest text-muted mb-2">
-                    More from {article.supplier.name}
-                  </p>
-                  <div className="flex flex-col gap-1">
-                    {supplierOtherArticles.map((a) => (
-                      <Link
-                        key={a.slug}
-                        href={`/articles/${a.slug}`}
-                        className="text-sm text-accent hover:text-text transition-colors"
-                      >
-                        {a.title}
-                      </Link>
-                    ))}
+        {article.supplier && (
+          <div className="max-w-[680px] mx-auto py-8 border-b border-border">
+            <div className="flex items-start gap-4">
+              <div className="w-12 h-12 flex-shrink-0 border border-border flex items-center justify-center overflow-hidden">
+                {article.supplier.logoUrl ? (
+                  <Image
+                    src={article.supplier.logoUrl}
+                    alt={article.supplier.name}
+                    width={48}
+                    height={48}
+                    className="object-contain"
+                  />
+                ) : (
+                  <span className="text-lg font-medium">{article.supplier.name.charAt(0)}</span>
+                )}
+              </div>
+              <div className="flex-1">
+                <Link
+                  href={`/suppliers/${article.supplier.slug}`}
+                  className="text-sm font-medium text-text hover:opacity-50 transition-opacity"
+                >
+                  {article.supplier.name}
+                </Link>
+                {article.supplier.tagline && (
+                  <p className="text-xs text-muted mt-1">{article.supplier.tagline}</p>
+                )}
+                {supplierOtherArticles.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-xs uppercase tracking-widest text-muted mb-2">
+                      More from {article.supplier.name}
+                    </p>
+                    <div className="flex flex-col gap-1">
+                      {supplierOtherArticles.map((a) => (
+                        <Link
+                          key={a.slug}
+                          href={`/articles/${a.slug}`}
+                          className="text-sm text-accent hover:text-text transition-colors"
+                        >
+                          {a.title}
+                        </Link>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {/* Email Gate — lead magnet */}
         <div className="max-w-[680px] mx-auto">
@@ -424,15 +452,17 @@ export default async function ArticlePage({ params }: PageProps) {
         </div>
 
         {/* Lead Form */}
-        <div className="max-w-[680px] mx-auto">
-          <LeadForm
-            supplierId={article.supplier.id}
-            articleId={article.id}
-            intent={intent}
-            sourceType="article"
-            prefillDestination={article.region || undefined}
-          />
-        </div>
+        {article.supplier && (
+          <div className="max-w-[680px] mx-auto">
+            <LeadForm
+              supplierId={article.supplier.id}
+              articleId={article.id}
+              intent={intent}
+              sourceType="article"
+              prefillDestination={article.region || undefined}
+            />
+          </div>
+        )}
 
         {/* Related Articles — "/ read next" */}
         {relatedArticles.length > 0 && (

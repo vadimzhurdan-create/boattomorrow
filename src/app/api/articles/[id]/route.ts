@@ -111,17 +111,23 @@ export async function PUT(
       tags,
       coverImageUrl,
       imageUrls,
+      difficulty,
     } = body
 
     const updateData: Record<string, any> = {}
     if (title !== undefined) updateData.title = title
-    if (content !== undefined) updateData.content = content
+    if (content !== undefined) {
+      updateData.content = content
+      // Recalculate reading time on content change
+      updateData.readingTime = Math.ceil(content.split(/\s+/).length / 200)
+    }
     if (excerpt !== undefined) updateData.excerpt = excerpt
     if (metaTitle !== undefined) updateData.metaTitle = metaTitle
     if (metaDescription !== undefined) updateData.metaDescription = metaDescription
     if (tags !== undefined) updateData.tags = tags
     if (coverImageUrl !== undefined) updateData.coverImageUrl = coverImageUrl
     if (imageUrls !== undefined) updateData.imageUrls = imageUrls
+    if (difficulty !== undefined) updateData.difficulty = difficulty
 
     const updated = await prisma.article.update({
       where: { id },

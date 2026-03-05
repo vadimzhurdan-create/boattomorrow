@@ -86,11 +86,31 @@ export async function PUT(request: NextRequest) {
       )
     }
 
-    if (action !== 'approve' && action !== 'reject') {
+    if (action !== 'approve' && action !== 'reject' && action !== 'toggleFeatured') {
       return NextResponse.json(
-        { error: 'Invalid action. Must be approve or reject' },
+        { error: 'Invalid action' },
         { status: 400 }
       )
+    }
+
+    // Handle toggleFeatured
+    if (action === 'toggleFeatured') {
+      const { isFeatured } = body
+      if (isFeatured) {
+        // Check max 4 featured articles
+        const featuredCount = await prisma.article.count({ where: { isFeatured: true } })
+        if (featuredCount >= 4) {
+          return NextResponse.json(
+            { error: 'Maximum 4 featured articles allowed. Remove one first.' },
+            { status: 400 }
+          )
+        }
+      }
+      const updated = await prisma.article.update({
+        where: { id: articleId },
+        data: { isFeatured: !!isFeatured },
+      })
+      return NextResponse.json({ data: updated })
     }
 
     const article = await prisma.article.findUnique({
@@ -118,6 +138,9 @@ export async function PUT(request: NextRequest) {
     if (action === 'approve') {
       updateData.status = 'published'
       updateData.publishedAt = new Date()
+      // Calculate reading time on publish
+      const wordCount = article.content.split(/\s+/).length
+      updateData.readingTime = Math.ceil(wordCount / 200)
     } else {
       updateData.status = 'rejected'
     }
@@ -128,7 +151,7 @@ export async function PUT(request: NextRequest) {
     })
 
     // On approval: auto-generate social posts + send email (fire & forget)
-    if (action === 'approve') {
+    if (action === 'approve' && article.supplier) {
       // Generate social posts
       generateSocialPosts(article.id, article.title, article.excerpt || article.content.slice(0, 500), article.slug)
         .catch((err) => console.error('Auto social post generation error:', err))

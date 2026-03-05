@@ -18,11 +18,13 @@ interface Article {
   status: string
   region: string | null
   createdAt: string
+  isFeatured: boolean
+  isEditorial: boolean
   supplier: {
     name: string
     slug: string
     type: string
-  }
+  } | null
 }
 
 export default function AdminArticlesPage() {
@@ -100,6 +102,24 @@ export default function AdminArticlesPage() {
     }
   }
 
+  async function handleToggleFeatured(articleId: string, currentValue: boolean) {
+    try {
+      const res = await fetch('/api/admin/articles', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId, action: 'toggleFeatured', isFeatured: !currentValue }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || 'Failed')
+      }
+      toast.success(currentValue ? 'Removed from featured' : 'Added to featured')
+      fetchArticles()
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to toggle featured')
+    }
+  }
+
   const statusTabs = [
     { value: '', label: 'All' },
     { value: 'review', label: 'Pending Review' },
@@ -137,7 +157,7 @@ export default function AdminArticlesPage() {
               <div>
                 <h2 className="font-semibold text-gray-900">{previewArticle.title}</h2>
                 <p className="text-xs text-gray-500">
-                  by {previewArticle.supplier.name} / {categoryLabels[previewArticle.category]}
+                  by {previewArticle.supplier?.name || 'Editorial'} / {categoryLabels[previewArticle.category]}
                 </p>
               </div>
               <div className="flex items-center gap-2">
@@ -218,13 +238,19 @@ export default function AdminArticlesPage() {
                       <Badge className="bg-gray-100 text-gray-600">
                         {categoryLabels[article.category] || article.category}
                       </Badge>
+                      {article.isFeatured && (
+                        <Badge className="bg-amber-100 text-amber-700">Featured</Badge>
+                      )}
+                      {article.isEditorial && (
+                        <Badge className="bg-blue-100 text-blue-700">Editorial</Badge>
+                      )}
                     </div>
                     <h3 className="text-sm font-semibold text-gray-900 truncate">
                       {article.title}
                     </h3>
                     <div className="flex items-center gap-3 mt-1">
                       <span className="text-xs text-gray-500">
-                        by {article.supplier.name}
+                        by {article.supplier?.name || 'Editorial'}
                       </span>
                       <span className="text-xs text-gray-400">
                         {formatDate(article.createdAt)}
@@ -242,6 +268,15 @@ export default function AdminArticlesPage() {
                     >
                       Preview
                     </Button>
+                    {article.status === 'published' && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleToggleFeatured(article.id, article.isFeatured)}
+                      >
+                        {article.isFeatured ? 'Unfeature' : 'Feature'}
+                      </Button>
+                    )}
                     {article.status === 'review' && (
                       <>
                         <Button

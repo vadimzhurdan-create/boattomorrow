@@ -1,5 +1,6 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 import { ArticleCard } from '@/components/articles/ArticleCard'
 
@@ -33,6 +34,18 @@ export default async function DestinationsPage({ searchParams }: PageProps) {
     category: 'destination' as const,
     ...(selectedRegion ? { region: selectedRegion } : {}),
   }
+
+  // Destination hub cards
+  const destinationHubs = await prisma.destination.findMany({
+    orderBy: { canonicalName: 'asc' },
+    select: {
+      slug: true,
+      canonicalName: true,
+      heroImage: true,
+      priceRange: true,
+      description: true,
+    },
+  })
 
   const [articles, totalCount] = await Promise.all([
     prisma.article.findMany({
@@ -93,6 +106,53 @@ export default async function DestinationsPage({ searchParams }: PageProps) {
           </Link>
         ))}
       </div>
+
+      {/* Destination Hubs */}
+      {destinationHubs.length > 0 && !selectedRegion && currentPage === 1 && (
+        <div className="mb-12">
+          <p className="text-xs uppercase tracking-widest text-muted mb-4">
+            <span className="text-accent">/</span> sailing regions
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {destinationHubs.map((dest) => {
+              const priceRange = dest.priceRange as { low?: number; currency?: string } | null
+              return (
+                <Link
+                  key={dest.slug}
+                  href={`/destinations/${dest.slug}`}
+                  className="group block border border-border overflow-hidden hover:border-accent/30 transition-colors"
+                >
+                  <div className="aspect-[3/2] bg-gradient-to-br from-[#0a2e4a] to-[#1a5276] flex items-center justify-center overflow-hidden">
+                    {dest.heroImage ? (
+                      <Image
+                        src={dest.heroImage}
+                        alt={dest.canonicalName}
+                        width={300}
+                        height={200}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      />
+                    ) : (
+                      <span className="text-white/20 text-3xl font-display font-light">
+                        {dest.canonicalName.charAt(0)}
+                      </span>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <h3 className="text-sm font-medium text-text group-hover:text-accent transition-colors truncate">
+                      {dest.canonicalName}
+                    </h3>
+                    {priceRange?.low && (
+                      <p className="text-xs text-accent mt-0.5">
+                        from &euro;{priceRange.low}/week
+                      </p>
+                    )}
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      )}
 
       {/* Count */}
       <p className="text-xs text-muted uppercase tracking-widest mb-8">

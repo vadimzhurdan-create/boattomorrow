@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { Clock } from 'lucide-react'
 
 interface ArticleCardProps {
   article: {
@@ -30,7 +31,7 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
   if (featured) {
     return (
       <Link href={`/articles/${article.slug}`} className="group block">
-        <div className="overflow-hidden" style={{ aspectRatio: '16/9' }}>
+        <div className="overflow-hidden rounded-lg" style={{ aspectRatio: '16/9' }}>
           {article.coverImageUrl ? (
             <Image
               src={article.coverImageUrl}
@@ -48,25 +49,30 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
           )}
         </div>
         <div className="mt-4">
-          <p className="text-xs uppercase tracking-widest text-muted mb-2">
-            <span>{article.category}</span>
-            {authorName && (
-              <>
-                <span className="mx-2 text-accent">/</span>
-                <span>by {authorName}</span>
-              </>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="bg-[#111] text-white text-xs uppercase tracking-wide px-2 py-1 rounded">
+              {article.category}
+            </span>
+            {article.readingTime && (
+              <span className="flex items-center gap-1 text-xs text-muted-light">
+                <Clock className="w-3 h-3" />
+                {article.readingTime} min
+              </span>
             )}
-          </p>
-          <h3 className="font-display text-display-md transition-opacity duration-200 group-hover:opacity-60">
+          </div>
+          <h3 className="font-display text-display-md transition-colors duration-200 group-hover:text-[#E8500A]">
             {article.title}
           </h3>
+          {authorName && (
+            <p className="text-xs text-muted-light mt-2">by {authorName}</p>
+          )}
         </div>
       </Link>
     )
   }
 
   return (
-    <Link href={`/articles/${article.slug}`} className="group block">
+    <Link href={`/articles/${article.slug}`} className="group block transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] rounded-lg overflow-hidden">
       <div className="overflow-hidden relative" style={{ aspectRatio: '4/3' }}>
         {article.coverImageUrl ? (
           <Image
@@ -83,31 +89,38 @@ export function ArticleCard({ article, featured }: ArticleCardProps) {
             </svg>
           </div>
         )}
+        {/* Category badge */}
+        <span className="absolute top-3 left-3 bg-[#111] text-white text-xs uppercase tracking-wide px-2 py-1 rounded">
+          {article.category}
+        </span>
         {/* Difficulty badge */}
         {article.difficulty === 'beginner' && (
-          <span className="absolute top-2 left-2 bg-green-600 text-white text-[10px] uppercase tracking-wider font-medium px-2 py-0.5">
+          <span className="absolute top-3 right-3 bg-green-100 text-green-800 text-xs font-medium px-2 py-0.5 rounded-full">
             Beginner-friendly
           </span>
         )}
       </div>
-      <p className="mt-3 text-xs uppercase tracking-widest text-muted">
-        <span>{article.category}</span>
-        {authorName && (
-          <>
-            <span className="mx-2 text-accent">/</span>
-            <span>by {authorName}</span>
-          </>
+      <div className="p-4">
+        <div className="flex items-center gap-3 mb-2">
+          {article.readingTime && (
+            <span className="flex items-center gap-1 text-xs text-muted-light">
+              <Clock className="w-3 h-3" />
+              {article.readingTime} min read
+            </span>
+          )}
+          {authorName && (
+            <span className="text-xs text-muted-light">
+              by {authorName}
+            </span>
+          )}
+        </div>
+        <h3 className="text-lg font-semibold text-text transition-colors duration-200 group-hover:text-[#E8500A] line-clamp-2">
+          {article.title}
+        </h3>
+        {article.excerpt && (
+          <p className="text-sm text-muted mt-1 line-clamp-2">{article.excerpt}</p>
         )}
-        {article.readingTime && (
-          <>
-            <span className="mx-2 text-border">/</span>
-            <span>{article.readingTime} min</span>
-          </>
-        )}
-      </p>
-      <h3 className="mt-1 text-base font-medium font-body text-text transition-opacity duration-200 group-hover:opacity-60 line-clamp-2">
-        {article.title}
-      </h3>
+      </div>
     </Link>
   )
 }

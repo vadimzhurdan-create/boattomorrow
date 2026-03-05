@@ -6,6 +6,14 @@
   body {
     @apply bg-bg text-text;
     font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 18px;
+    line-height: 1.625;
+  }
+
+  @media (max-width: 767px) {
+    body {
+      font-size: 16px;
+    }
   }
 
   a {
@@ -53,22 +61,22 @@
 .prose-editorial h1 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 600;
-  font-size: 2rem;
-  line-height: 1.3;
+  font-size: 2.5rem;
+  line-height: 1.2;
   margin: 2.5rem 0 0.75rem;
 }
 .prose-editorial h2 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 600;
-  font-size: 1.5rem;
-  line-height: 1.3;
+  font-size: 2rem;
+  line-height: 1.25;
   margin: 2.5rem 0 0.75rem;
 }
 .prose-editorial h3 {
   font-family: 'Playfair Display', Georgia, serif;
   font-weight: 600;
-  font-size: 1.25rem;
-  line-height: 1.4;
+  font-size: 1.5rem;
+  line-height: 1.35;
   margin: 2rem 0 0.5rem;
 }
 .prose-editorial p {
@@ -89,10 +97,10 @@
   margin-bottom: 0.35rem;
 }
 .prose-editorial blockquote {
-  border-left: 3px solid #E5E4DF;
+  border-left: 3px solid #E0E0E0;
   padding-left: 1.25rem;
   font-style: italic;
-  color: #777777;
+  color: #4A4A4A;
   margin: 1.5rem 0;
 }
 .prose-editorial img {

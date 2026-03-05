@@ -1,5 +1,7 @@
 import { Metadata } from 'next'
 import Link from 'next/link'
+import Image from 'next/image'
+import { Anchor, Navigation, Users, Flag, Check, ArrowRight } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import { LeadForm } from '@/components/leads/LeadForm'
 
@@ -17,10 +19,10 @@ const myths = [
 ]
 
 const charterTypes = [
-  { name: 'Bareboat', desc: 'You are the captain. Rent the yacht, plan your route, and sail independently. You need a license or enough experience.', icon: 'anchor' },
-  { name: 'Skippered', desc: 'A professional skipper sails the boat for you. You choose where to go and what to do. Perfect for beginners.', icon: 'user' },
-  { name: 'Crewed', desc: 'A full crew including a cook and hostess. Luxury experience where everything is taken care of.', icon: 'users' },
-  { name: 'Flotilla', desc: 'Sail in a group of boats with a lead crew. Social, guided, and ideal for first-timers who want company.', icon: 'flag' },
+  { name: 'Bareboat', desc: 'You are the captain. Rent the yacht, plan your route, and sail independently. You need a license or enough experience.', Icon: Anchor, recommended: false },
+  { name: 'Skippered', desc: 'A professional skipper sails the boat for you. You choose where to go and what to do. Perfect for beginners.', Icon: Navigation, recommended: true },
+  { name: 'Crewed', desc: 'A full crew including a cook and hostess. Luxury experience where everything is taken care of.', Icon: Users, recommended: false },
+  { name: 'Flotilla', desc: 'Sail in a group of boats with a lead crew. Social, guided, and ideal for first-timers who want company.', Icon: Flag, recommended: false },
 ]
 
 const boatComparison = {
@@ -100,23 +102,27 @@ export default async function StartHerePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      {/* 1. Hero */}
-      <section className="relative min-h-[70vh] flex items-center justify-center bg-gradient-to-br from-[#0a2e4a] via-[#0d3b5e] to-[#1a5276] text-white">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0id2F2ZXMiIHg9IjAiIHk9IjAiIHdpZHRoPSIyMDAiIGhlaWdodD0iMjAwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNMCAxMDAgQzUwIDgwIDEwMCAxMjAgMjAwIDEwMCIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBmaWxsPSJub25lIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjd2F2ZXMpIi8+PC9zdmc+')] opacity-30" />
-        <div className="relative text-center px-6 max-w-3xl mx-auto">
-          <p className="text-sm uppercase tracking-[0.3em] text-white/60 mb-6">
-            <span className="text-[#E8500A]">/</span> your journey starts here
+      {/* 1. Hero — sea-horizon gradient */}
+      <section
+        className="relative min-h-[60vh] md:min-h-[70vh] flex items-center justify-center"
+        style={{
+          background: 'linear-gradient(180deg, #1B3A5C 0%, #2E6B8A 40%, #4A9BB5 70%, #E8DCC8 90%, #FAFAF8 100%)',
+        }}
+      >
+        <div className="relative text-center px-6 max-w-3xl mx-auto py-20 md:py-32">
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-white/60 mb-6">
+            your journey starts here
           </p>
-          <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-light leading-[1.1] tracking-tight mb-6">
+          <h1 className="font-display text-5xl md:text-7xl font-bold leading-[1.1] tracking-tight mb-6 text-white">
             Your Boat Tomorrow
           </h1>
-          <p className="text-lg md:text-xl text-white/80 font-light max-w-xl mx-auto mb-10">
+          <p className="text-xl md:text-2xl text-white/80 font-light max-w-xl mx-auto mb-10">
             Everything a first-timer needs to know about sailing holidays,
             from choosing a destination to stepping aboard.
           </p>
           <a
             href="#guide"
-            className="inline-block bg-[#E8500A] text-white px-8 py-3.5 text-sm font-medium tracking-wide hover:opacity-85 transition-opacity"
+            className="inline-block bg-[#E8500A] text-white px-8 py-3.5 rounded-lg text-base font-semibold tracking-wide hover:bg-[#D04500] transition-colors shadow-sm hover:shadow-md"
           >
             Read the guide &darr;
           </a>
@@ -124,10 +130,10 @@ export default async function StartHerePage() {
       </section>
 
       {/* 2. Narrative */}
-      <section id="guide" className="py-16 md:py-24">
+      <section id="guide" className="py-20 md:py-28">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-8">
-            <span className="text-accent">/</span> why the sea?
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-8">
+            why the sea?
           </p>
           <div className="space-y-6 text-lg text-muted leading-relaxed font-light">
             <p>
@@ -149,32 +155,34 @@ export default async function StartHerePage() {
       </section>
 
       {/* 3. MythBuster */}
-      <section className="py-16 md:py-20 bg-bg-alt">
+      <section className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> myth vs reality
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            myth vs reality
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-12">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
             Five things people get wrong about sailing
           </h2>
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-12" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {myths.map((m, i) => (
               <div
                 key={i}
-                className="bg-bg border border-border p-6 section-animate"
+                className="bg-bg border-l-4 border-l-green-500 rounded-lg p-6 md:p-8 section-animate transition-all duration-300 hover:shadow-md"
                 style={{ animationDelay: `${i * 0.1}s` }}
               >
-                <div className="flex items-center gap-2 mb-3">
-                  <span className="text-red-500 text-lg font-bold">X</span>
-                  <span className="text-accent text-lg font-bold">&rarr;</span>
-                  <span className="text-green-600 text-lg font-bold">&#10003;</span>
+                <div className="flex items-start gap-3 mb-4">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-lg font-bold">✕</span>
+                  <p className="text-base text-muted-light line-through decoration-red-300 pt-1">
+                    &ldquo;{m.myth}&rdquo;
+                  </p>
                 </div>
-                <p className="text-sm font-medium text-text mb-2 line-through decoration-red-300">
-                  &ldquo;{m.myth}&rdquo;
-                </p>
-                <p className="text-sm text-muted leading-relaxed">
-                  {m.reality}
-                </p>
+                <div className="flex items-start gap-3">
+                  <span className="flex-shrink-0 w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-lg font-bold">&#10003;</span>
+                  <p className="text-base text-text font-medium leading-relaxed pt-1">
+                    {m.reality}
+                  </p>
+                </div>
               </div>
             ))}
           </div>
@@ -182,43 +190,81 @@ export default async function StartHerePage() {
       </section>
 
       {/* 4. HowItWorks — Charter types + Monohull vs Catamaran */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> how it works
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            how it works
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-12">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
             Four types of charter
           </h2>
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-12" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-20">
             {charterTypes.map((ct) => (
-              <div key={ct.name} className="border border-border p-6">
-                <h3 className="text-base font-medium text-text mb-2">{ct.name}</h3>
-                <p className="text-sm text-muted leading-relaxed">{ct.desc}</p>
+              <div
+                key={ct.name}
+                className={`relative rounded-lg p-6 md:p-8 transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px] ${
+                  ct.recommended
+                    ? 'border-2 border-[#E8500A] bg-orange-50'
+                    : 'border border-border bg-bg hover:border-l-4 hover:border-l-[#E8500A]'
+                }`}
+              >
+                {ct.recommended && (
+                  <span className="absolute -top-3 right-4 bg-[#E8500A] text-white text-xs font-medium px-3 py-1 rounded-full">
+                    ★ Best for first-timers
+                  </span>
+                )}
+                <ct.Icon className="w-10 h-10 text-[#E8500A] mb-4" />
+                <h3 className="text-xl font-bold text-text mb-2">{ct.name}</h3>
+                <p className="text-base text-muted leading-relaxed">{ct.desc}</p>
               </div>
             ))}
           </div>
 
-          <h3 className="font-display text-2xl font-light mb-8">Monohull vs Catamaran</h3>
+          <h3 className="font-display text-2xl md:text-3xl font-light mb-3">Monohull vs Catamaran</h3>
+          <p className="text-base text-muted-light mb-8">
+            Two types of boat, two different experiences. Here&apos;s how they compare.
+          </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="border border-border p-6">
-              <h4 className="text-sm uppercase tracking-widest text-muted mb-4">Monohull</h4>
-              <ul className="space-y-2">
+            <div className="bg-bg-alt rounded-lg p-6 md:p-8">
+              {/* Monohull silhouette */}
+              <div className="mb-5 flex justify-center">
+                <svg width="100" height="60" viewBox="0 0 100 60" className="text-text">
+                  <path d="M15 40 Q25 20, 50 15 Q75 20, 85 40 Z" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="50" y1="15" x2="50" y2="5" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M50 8 Q65 15, 50 30" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M10 42 Q50 50, 90 42" fill="none" stroke="currentColor" strokeWidth="2"/>
+                </svg>
+              </div>
+              <h4 className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-4">Monohull</h4>
+              <ul className="space-y-3">
                 {boatComparison.monohull.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-text">
-                    <span className="text-accent mt-0.5">&#8226;</span>
+                  <li key={item} className="flex items-start gap-3 text-base text-text">
+                    <Check className="w-5 h-5 text-[#E8500A] mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
-            <div className="border border-border p-6">
-              <h4 className="text-sm uppercase tracking-widest text-muted mb-4">Catamaran</h4>
-              <ul className="space-y-2">
+            <div className="bg-white border border-border rounded-lg p-6 md:p-8">
+              {/* Catamaran silhouette */}
+              <div className="mb-5 flex justify-center">
+                <svg width="100" height="60" viewBox="0 0 100 60" className="text-text">
+                  <path d="M10 40 Q20 25, 35 40" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M65 40 Q75 25, 90 40" fill="none" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="25" y1="30" x2="75" y2="30" stroke="currentColor" strokeWidth="2"/>
+                  <line x1="50" y1="30" x2="50" y2="10" stroke="currentColor" strokeWidth="2"/>
+                  <path d="M50 12 Q65 18, 50 28" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M5 42 Q25 48, 40 42" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                  <path d="M60 42 Q75 48, 95 42" fill="none" stroke="currentColor" strokeWidth="1.5"/>
+                </svg>
+              </div>
+              <h4 className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-4">Catamaran</h4>
+              <ul className="space-y-3">
                 {boatComparison.catamaran.map((item) => (
-                  <li key={item} className="flex items-start gap-2 text-sm text-text">
-                    <span className="text-accent mt-0.5">&#8226;</span>
+                  <li key={item} className="flex items-start gap-3 text-base text-text">
+                    <Check className="w-5 h-5 text-[#E8500A] mt-0.5 flex-shrink-0" />
                     {item}
                   </li>
                 ))}
@@ -229,14 +275,15 @@ export default async function StartHerePage() {
       </section>
 
       {/* 5. WhereToGo — Destination cards */}
-      <section className="py-16 md:py-20 bg-bg-alt">
+      <section className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> where to go
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            where to go
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-12">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
             Best destinations for first-timers
           </h2>
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-12" />
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {destinations.map((dest) => {
@@ -245,25 +292,45 @@ export default async function StartHerePage() {
                 <Link
                   key={dest.slug}
                   href={`/destinations/${dest.slug}`}
-                  className="group block bg-bg border border-border overflow-hidden hover:border-accent/30 transition-colors"
+                  className="group block overflow-hidden rounded-lg transition-all duration-300 hover:shadow-lg hover:-translate-y-[2px]"
                 >
-                  <div className="aspect-[4/3] bg-gradient-to-br from-[#0a2e4a] to-[#1a5276] flex items-center justify-center">
-                    <span className="text-white/30 text-6xl font-display font-light">
-                      {dest.canonicalName.charAt(0)}
-                    </span>
-                  </div>
-                  <div className="p-5">
-                    <h3 className="text-base font-medium text-text group-hover:text-accent transition-colors">
-                      {dest.canonicalName}
-                    </h3>
-                    {dest.description && (
-                      <p className="text-sm text-muted mt-1 line-clamp-2">{dest.description}</p>
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    {dest.heroImage ? (
+                      <Image
+                        src={dest.heroImage}
+                        alt={dest.canonicalName}
+                        width={400}
+                        height={533}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.05]"
+                      />
+                    ) : (
+                      <div
+                        className="w-full h-full flex items-center justify-center"
+                        style={{
+                          background: 'linear-gradient(180deg, #1B3A5C 0%, #2E6B8A 50%, #4A9BB5 100%)',
+                        }}
+                      >
+                        <span className="text-white/20 text-7xl font-display font-light">
+                          {dest.canonicalName.charAt(0)}
+                        </span>
+                      </div>
                     )}
-                    {priceRange?.low && (
-                      <p className="text-sm font-medium text-accent mt-3">
-                        from {priceRange.currency || 'EUR'} {priceRange.low}/week
-                      </p>
-                    )}
+                    {/* Gradient overlay */}
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent 40%, rgba(0,0,0,0.7))' }} />
+                    {/* Text on photo */}
+                    <div className="absolute bottom-0 left-0 right-0 p-5">
+                      <h3 className="font-display text-2xl font-bold text-white group-hover:text-white/90 transition-colors">
+                        {dest.canonicalName}
+                      </h3>
+                      {dest.description && (
+                        <p className="text-sm text-white/70 mt-1 line-clamp-2">{dest.description}</p>
+                      )}
+                      {priceRange?.low && (
+                        <p className="text-sm font-semibold text-white mt-2">
+                          from {priceRange.currency || 'EUR'} {priceRange.low}/week
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </Link>
               )
@@ -272,29 +339,32 @@ export default async function StartHerePage() {
         </div>
       </section>
 
-      {/* 6. StepByStep — Timeline */}
-      <section className="py-16 md:py-24">
+      {/* 6. StepByStep — Timeline with large numbers */}
+      <section className="py-20 md:py-28">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> step by step
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            step by step
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-12">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
             Seven steps to your first charter
           </h2>
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-12" />
 
           <div className="relative">
             {/* Timeline line */}
-            <div className="absolute left-[19px] top-2 bottom-2 w-px bg-border" />
+            <div className="absolute left-[28px] top-4 bottom-4 w-[2px] bg-[#E8500A]/20" />
 
-            <div className="space-y-8">
+            <div className="space-y-10">
               {steps.map((step, i) => (
                 <div key={i} className="relative flex gap-6 section-animate" style={{ animationDelay: `${i * 0.05}s` }}>
-                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-accent text-white flex items-center justify-center text-sm font-medium relative z-10">
-                    {i + 1}
+                  <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center relative z-10">
+                    <span className="font-display text-4xl md:text-5xl font-bold text-[#E8500A] opacity-80">
+                      {i + 1}
+                    </span>
                   </div>
-                  <div className="pt-1.5">
-                    <h3 className="text-base font-medium text-text">{step.title}</h3>
-                    <p className="text-sm text-muted mt-1 leading-relaxed">{step.desc}</p>
+                  <div className="pt-2">
+                    <h3 className="text-xl font-semibold text-text">{step.title}</h3>
+                    <p className="text-base text-muted mt-1 leading-relaxed">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -303,36 +373,41 @@ export default async function StartHerePage() {
         </div>
       </section>
 
-      {/* 7. CostComparison */}
-      <section className="py-16 md:py-20 bg-bg-alt">
+      {/* 7. CostComparison — with highlighted mid-range */}
+      <section className="py-20 md:py-28 bg-bg-alt">
         <div className="max-w-6xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> what it costs
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            what it costs
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-12">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
             Realistic budget breakdown
           </h2>
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-12" />
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
             {costs.map((c) => (
               <div
                 key={c.tier}
-                className={`border p-6 ${c.highlight ? 'border-accent bg-bg ring-1 ring-accent/20' : 'border-border bg-bg'}`}
+                className={`relative rounded-lg p-6 md:p-8 transition-all duration-300 ${
+                  c.highlight
+                    ? 'border-2 border-[#E8500A] bg-white shadow-lg md:scale-105 z-10'
+                    : 'border border-border bg-white hover:shadow-md'
+                }`}
               >
                 {c.highlight && (
-                  <span className="text-[10px] uppercase tracking-widest text-accent font-medium mb-2 block">
-                    Most popular
+                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[#E8500A] text-white text-xs font-semibold uppercase tracking-wider px-4 py-1 rounded-full whitespace-nowrap">
+                    Most Popular
                   </span>
                 )}
-                <h3 className="text-lg font-medium text-text">{c.tier}</h3>
-                <div className="mt-2 mb-4">
-                  <span className="font-display text-3xl font-light text-text">&euro;{c.price}</span>
-                  <span className="text-xs text-muted ml-1">{c.unit}</span>
+                <h3 className="text-lg font-semibold text-text">{c.tier}</h3>
+                <div className="mt-3 mb-5">
+                  <span className="font-display text-4xl font-bold text-text">&euro;{c.price}</span>
+                  <span className="text-sm text-muted-light ml-1">{c.unit}</span>
                 </div>
-                <ul className="space-y-2">
+                <ul className="space-y-3">
                   {c.includes.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm text-muted">
-                      <span className="text-accent mt-0.5">&#10003;</span>
+                    <li key={item} className="flex items-start gap-3 text-base text-muted">
+                      <Check className="w-5 h-5 text-[#E8500A] mt-0.5 flex-shrink-0" />
                       {item}
                     </li>
                   ))}
@@ -340,22 +415,25 @@ export default async function StartHerePage() {
               </div>
             ))}
           </div>
-          <p className="text-sm text-muted text-center mt-8">
-            For comparison, a 4-star hotel in Dubrovnik averages &euro;180-250 per night for two people.
-          </p>
+          <div className="text-center mt-10 p-4 bg-orange-50 rounded-lg">
+            <span className="text-sm text-muted">
+              For comparison: a 4&#9733; hotel in Croatia averages <strong>&euro;200-300</strong>/night for two
+            </span>
+          </div>
         </div>
       </section>
 
       {/* 8. ClosingCTA */}
-      <section className="py-16 md:py-24">
+      <section className="py-20 md:py-28">
         <div className="max-w-3xl mx-auto px-6">
-          <p className="text-xs uppercase tracking-widest text-muted mb-3">
-            <span className="text-accent">/</span> ready?
+          <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+            ready?
           </p>
-          <h2 className="font-display text-3xl md:text-4xl font-light mb-6">
+          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-6">
             The best time to start was yesterday
           </h2>
-          <div className="space-y-4 text-lg text-muted leading-relaxed font-light mb-8">
+          <div className="w-12 h-[3px] bg-[#E8500A] mt-3 mb-8" />
+          <div className="space-y-4 text-lg text-muted leading-relaxed font-light mb-10">
             <p>
               You do not need to know everything. You do not need the perfect boat or the perfect week.
               You just need to decide that this is the year.

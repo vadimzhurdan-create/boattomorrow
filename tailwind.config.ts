@@ -8,11 +8,13 @@ const config: Config = {
     extend: {
       colors: {
         bg: '#FAFAF8',
-        'bg-alt': '#F2F1ED',
+        'bg-alt': '#F5F5F3',
         text: '#111111',
-        muted: '#777777',
-        border: '#E5E4DF',
+        muted: '#4A4A4A',
+        'muted-light': '#6B6B6B',
+        border: '#E0E0E0',
         accent: '#E8500A',
+        'accent-dark': '#D04500',
       },
       fontFamily: {
         display: ['Playfair Display', 'Georgia', 'serif'],

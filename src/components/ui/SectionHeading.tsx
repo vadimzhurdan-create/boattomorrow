@@ -1,25 +1,35 @@
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 
 interface SectionHeadingProps {
   children: React.ReactNode
+  label?: string
   viewAllHref?: string
 }
 
-export function SectionHeading({ children, viewAllHref }: SectionHeadingProps) {
+export function SectionHeading({ children, label, viewAllHref }: SectionHeadingProps) {
   return (
-    <div className="flex items-baseline justify-between border-t border-border pt-6 mb-6">
-      <h2 className="text-2xl font-light font-body tracking-tight">
-        <span className="text-accent mr-1">/</span>
-        {children}
-      </h2>
-      {viewAllHref && (
-        <Link
-          href={viewAllHref}
-          className="text-sm text-muted hover:text-text transition-colors"
-        >
-          view all &rarr;
-        </Link>
+    <div className="mb-10">
+      {label && (
+        <p className="text-sm uppercase tracking-[0.15em] font-semibold text-[#E8500A] mb-3">
+          {label}
+        </p>
       )}
+      <div className="flex items-baseline justify-between">
+        <h2 className="font-display text-3xl md:text-[2.5rem] font-light tracking-tight text-text">
+          {children}
+        </h2>
+        {viewAllHref && (
+          <Link
+            href={viewAllHref}
+            className="text-sm font-semibold text-[#E8500A] uppercase tracking-wide hover:text-[#111] transition-colors flex items-center gap-1"
+          >
+            view all
+            <ArrowRight className="w-4 h-4" />
+          </Link>
+        )}
+      </div>
+      <div className="w-12 h-[3px] bg-[#E8500A] mt-3" />
     </div>
   )
 }

@@ -20,6 +20,7 @@ export async function POST(request: NextRequest) {
       destination,
       dates,
       groupSize,
+      capturePoint,
       honeypot,
     } = body
 
@@ -75,6 +76,7 @@ export async function POST(request: NextRequest) {
         destination: destination || null,
         dates: dates || null,
         groupSize: groupSize ? parseInt(groupSize, 10) : null,
+        capturePoint: capturePoint || null,
       },
     })
 

@@ -143,6 +143,9 @@ model Article {
   bylineText     String?                  // "Written by X, based on Y years of experience..."
   supplierQuote  String?                  // Pull-quote from supplier for sidebar
 
+  // Distribution kit
+  socialPosts    Json?                    // [{ type: string, text: string }]
+
   // Cornerstone architecture
   isCornerstone  Boolean         @default(false)
   cornerstoneId  String?
@@ -154,6 +157,7 @@ model Article {
   destination    Destination?    @relation(fields: [destinationId], references: [id])
 
   leads Lead[]
+  views ArticleView[]
 
   @@index([supplierId])
   @@index([category])
@@ -184,22 +188,23 @@ model QuizSession {
 }
 
 model Lead {
-  id          String         @id @default(uuid())
-  supplierId  String
-  supplier    Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  articleId   String?
-  article     Article?       @relation(fields: [articleId], references: [id], onDelete: SetNull)
-  sourceType  LeadSourceType
-  intent      LeadIntent     @default(general)
-  name        String         @db.VarChar(255)
-  email       String         @db.VarChar(255)
-  phone       String?        @db.VarChar(50)
-  message     String?
-  destination String?        @db.VarChar(255)
-  dates       String?        @db.VarChar(100)
-  groupSize   Int?
-  status      LeadStatus     @default(new_lead)
-  createdAt   DateTime       @default(now())
+  id           String         @id @default(uuid())
+  supplierId   String
+  supplier     Supplier       @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  articleId    String?
+  article      Article?       @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  sourceType   LeadSourceType
+  intent       LeadIntent     @default(general)
+  name         String         @db.VarChar(255)
+  email        String         @db.VarChar(255)
+  phone        String?        @db.VarChar(50)
+  message      String?
+  destination  String?        @db.VarChar(255)
+  dates        String?        @db.VarChar(100)
+  groupSize    Int?
+  capturePoint String?        @db.VarChar(50)  // inline_cta_1, inline_cta_2, bottom_form, email_gate
+  status       LeadStatus     @default(new_lead)
+  createdAt    DateTime       @default(now())
 
   @@index([supplierId])
   @@index([articleId])
@@ -217,13 +222,49 @@ model Category {
 }
 
 model Destination {
-  id            String    @id @default(uuid())
-  canonicalName String    @unique @db.VarChar(255)  // "Croatia - Dalmatian Coast"
-  slug          String    @unique @db.VarChar(255)  // "croatia-dalmatian-coast"
-  aliases       String[]                            // ["Croatia", "Dalmatia"]
-  region        String    @db.VarChar(100)          // "Mediterranean"
-  description   String?                             // hub page intro text
-  coverImageUrl String?
-  articles      Article[]
-  createdAt     DateTime  @default(now())
+  id              String    @id @default(uuid())
+  canonicalName   String    @unique @db.VarChar(255)  // "Croatia - Dalmatian Coast"
+  slug            String    @unique @db.VarChar(255)  // "croatia-dalmatian-coast"
+  aliases         String[]                            // ["Croatia", "Dalmatia"]
+  region          String    @db.VarChar(100)          // "Mediterranean"
+  description     String?                             // hub page intro text
+  coverImageUrl   String?
+  articles        Article[]
+  createdAt       DateTime  @default(now())
+
+  // Mega-page fields
+  heroImage       String?
+  answerCapsule   String?                             // 40-60 word text for AI search
+  quickFacts      Json?                               // {season, temperature, currency, language, mainMarinas}
+  seasonData      Json?                               // [{month, rating, avgTemp, note}]
+  priceRange      Json?                               // {low, high, currency, unit}
+  overview        String?                             // 2-3 paragraphs
+  metaTitle       String?   @db.VarChar(255)
+  metaDescription String?   @db.VarChar(500)
+}
+
+model Subscriber {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  source         String                              // lead_magnet, newsletter, quiz
+  leadMagnet     String?                             // slug of lead magnet
+  articleId      String?                             // which article they subscribed from
+  categorySlug   String?                             // category of that article
+  createdAt      DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@index([email])
+}
+
+model ArticleView {
+  id        String   @id @default(cuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  referrer  String?
+  utmSource String?
+  utmMedium String?
+  createdAt DateTime @default(now())
+
+  @@index([articleId])
+  @@index([createdAt])
 }

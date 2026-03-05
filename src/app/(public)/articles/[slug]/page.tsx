@@ -2,14 +2,16 @@ import { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
 import { prisma } from '@/lib/prisma'
 import { LeadForm } from '@/components/leads/LeadForm'
+import { EmailGate } from '@/components/leads/EmailGate'
+import { ViewTracker } from '@/components/articles/ViewTracker'
+import { ArticleContent } from '@/components/articles/ArticleContent'
 import { ArticleCard } from '@/components/articles/ArticleCard'
 import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { formatDate, categoryLabels, getCategoryPath, slugify } from '@/lib/utils'
 import { SectionHeading } from '@/components/ui/SectionHeading'
+import { VerifiedBadge } from '@/components/suppliers/VerifiedBadge'
 import { getRelatedArticles } from '@/lib/related-articles'
 
 interface PageProps {
@@ -40,6 +42,11 @@ async function getArticle(slug: string) {
           logoUrl: true,
           regions: true,
           website: true,
+          description: true,
+          contactEmail: true,
+          contactPhone: true,
+          profileStatus: true,
+          _count: { select: { articles: true } },
         },
       },
     },
@@ -97,11 +104,7 @@ export default async function ArticlePage({ params }: PageProps) {
     notFound()
   }
 
-  // Fire-and-forget view count increment
-  prisma.article.update({
-    where: { id: article.id },
-    data: { viewsCount: { increment: 1 } },
-  }).catch(() => {})
+  // View tracking is handled by ViewTracker client component
 
   const intent = getIntentForSupplierType(article.supplier.type)
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://boattomorrow.com'
@@ -209,6 +212,9 @@ export default async function ArticlePage({ params }: PageProps) {
         />
       )}
 
+      {/* View Tracker */}
+      <ViewTracker articleId={article.id} />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         {/* Article Header */}
         <header className="max-w-3xl mx-auto pt-12 pb-8">
@@ -268,7 +274,7 @@ export default async function ArticlePage({ params }: PageProps) {
                 <span className="text-xs font-medium">{article.supplier.name.charAt(0)}</span>
               )}
             </div>
-            <div className="text-sm">
+            <div className="text-sm flex items-center gap-1.5">
               <span className="text-muted">by </span>
               <Link
                 href={`/suppliers/${article.supplier.slug}`}
@@ -276,7 +282,11 @@ export default async function ArticlePage({ params }: PageProps) {
               >
                 {article.supplier.name}
               </Link>
-              <span className="text-xs text-accent ml-2 uppercase tracking-wider">
+              <VerifiedBadge
+                supplier={article.supplier}
+                publishedArticles={article.supplier._count?.articles}
+              />
+              <span className="text-xs text-accent ml-1 uppercase tracking-wider">
                 {article.supplier.type}
               </span>
             </div>
@@ -331,12 +341,14 @@ export default async function ArticlePage({ params }: PageProps) {
           </blockquote>
         )}
 
-        {/* Article Body */}
-        <div className="prose-editorial py-12">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>
-            {article.content}
-          </ReactMarkdown>
-        </div>
+        {/* Article Body with Inline CTAs */}
+        <ArticleContent
+          content={article.content}
+          supplierId={article.supplier.id}
+          articleId={article.id}
+          supplierType={article.supplier.type}
+          destination={article.region || undefined}
+        />
 
         {/* Tags */}
         {article.tags.length > 0 && (
@@ -400,6 +412,15 @@ export default async function ArticlePage({ params }: PageProps) {
               )}
             </div>
           </div>
+        </div>
+
+        {/* Email Gate — lead magnet */}
+        <div className="max-w-[680px] mx-auto">
+          <EmailGate
+            category={article.category}
+            destination={article.region || undefined}
+            articleId={article.id}
+          />
         </div>
 
         {/* Lead Form */}

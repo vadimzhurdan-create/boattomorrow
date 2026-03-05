@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
+import { VerifiedBadge } from './VerifiedBadge'
 
 interface SupplierCardProps {
   supplier: {
@@ -9,6 +10,11 @@ interface SupplierCardProps {
     tagline?: string | null
     logoUrl: string | null
     regions: string[]
+    description?: string | null
+    contactEmail?: string | null
+    contactPhone?: string | null
+    profileStatus?: string
+    _count?: { articles: number }
   }
 }
 
@@ -40,8 +46,12 @@ export function SupplierCard({ supplier }: SupplierCardProps) {
         <p className="text-xs uppercase tracking-widest text-accent mb-0.5">
           {supplier.type}
         </p>
-        <h3 className="text-base font-medium text-text transition-opacity duration-200 group-hover:opacity-50 truncate">
+        <h3 className="text-base font-medium text-text transition-opacity duration-200 group-hover:opacity-50 truncate flex items-center gap-1.5">
           {supplier.name}
+          <VerifiedBadge
+            supplier={supplier}
+            publishedArticles={supplier._count?.articles}
+          />
         </h3>
         {supplier.regions.length > 0 && (
           <p className="mt-0.5 text-xs text-muted font-light">

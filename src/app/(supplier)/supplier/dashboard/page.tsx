@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
+import { AnalyticsPanel } from '@/components/supplier/AnalyticsPanel'
 import { formatDate, statusColors, leadStatusColors, categoryLabels } from '@/lib/utils'
 
 export default async function SupplierDashboardPage() {
@@ -123,6 +124,11 @@ export default async function SupplierDashboardPage() {
             </CardContent>
           </Card>
         ))}
+      </div>
+
+      {/* Analytics Panel */}
+      <div className="mb-8">
+        <AnalyticsPanel />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

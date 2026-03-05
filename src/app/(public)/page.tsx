@@ -64,8 +64,8 @@ export default async function HomePage() {
       },
     }),
     prisma.article.count({ where: { status: 'published' } }),
-    prisma.supplier.count({ where: { profileStatus: 'published', status: 'active' } }),
-    prisma.article.count({ where: { status: 'published', category: 'destination' } }),
+    prisma.supplier.count({ where: { status: 'active' } }),
+    prisma.destination.count(),
   ])
 
   const featured = latestArticles[0]

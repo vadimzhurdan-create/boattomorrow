@@ -113,8 +113,8 @@ export function Header() {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div className="md:hidden fixed inset-0 top-16 bg-bg z-40">
-          <nav className="flex flex-col px-6 py-8 gap-1">
+        <div className="md:hidden fixed inset-0 top-16 bg-bg z-[60] overflow-y-auto">
+          <nav className="flex flex-col px-6 py-8 gap-1 min-h-full">
             {navLinks.map((link, i) => (
               <Link
                 key={link.href}
@@ -162,7 +162,7 @@ export function Header() {
                 </>
               )}
             </div>
-            <div className="absolute bottom-8 left-6 text-xs text-muted">
+            <div className="mt-auto pt-8 pb-4 text-xs text-muted">
               info@boattomorrow.com
             </div>
           </nav>

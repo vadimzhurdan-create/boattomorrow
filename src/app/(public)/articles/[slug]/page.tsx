@@ -227,17 +227,25 @@ export default async function ArticlePage({ params }: PageProps) {
           {/* Breadcrumbs */}
           <Breadcrumbs items={breadcrumbItems} />
 
-          {/* Meta */}
-          <div className="flex items-center gap-3 text-xs uppercase tracking-widest text-muted mb-6">
-            <Link href={categoryPath} className="hover:text-text transition-colors">
-              <span className="text-accent">/</span> {article.category}
+          {/* Title */}
+          <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-light leading-tight tracking-tight">
+            {article.title}
+          </h1>
+
+          {/* Meta line — category badge + region + date + reading time */}
+          <div className="flex flex-wrap items-center gap-3 text-sm text-[#6B6B6B] mt-4 mb-6">
+            <Link
+              href={categoryPath}
+              className="bg-[#111] text-white text-xs uppercase tracking-wide px-2 py-1 rounded hover:bg-[#333] transition-colors"
+            >
+              {categoryLabels[article.category] || article.category}
             </Link>
             {article.region && (
               <>
-                <span className="text-border">/</span>
+                <span className="text-[#D0D0D0]">&middot;</span>
                 <Link
                   href={`/destinations/${slugify(article.region)}`}
-                  className="hover:text-text transition-colors"
+                  className="hover:text-[#111] transition-colors"
                 >
                   {article.region}
                 </Link>
@@ -245,22 +253,23 @@ export default async function ArticlePage({ params }: PageProps) {
             )}
             {article.publishedAt && (
               <>
-                <span className="text-border">/</span>
+                <span className="text-[#D0D0D0]">&middot;</span>
                 <time dateTime={article.publishedAt.toISOString()}>
                   {formatDate(article.publishedAt)}
                 </time>
               </>
             )}
+            {article.readingTime && (
+              <>
+                <span className="text-[#D0D0D0]">&middot;</span>
+                <span>{article.readingTime} min read</span>
+              </>
+            )}
           </div>
-
-          {/* Title */}
-          <h1 className="font-display text-3xl md:text-4xl lg:text-5xl font-light leading-tight tracking-tight">
-            {article.title}
-          </h1>
 
           {/* Answer Capsule */}
           {article.answerCapsule && (
-            <p className="mt-6 text-lg text-muted leading-relaxed font-body">
+            <p className="mt-2 text-lg text-muted leading-relaxed font-body">
               {article.answerCapsule}
             </p>
           )}

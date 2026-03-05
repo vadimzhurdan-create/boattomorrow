@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
 import { useState, useEffect, useRef } from 'react'
+import { ChevronDown, LayoutDashboard, FileText, Users, Building2, LogOut, Shield } from 'lucide-react'
 
 const navGroups = [
   {
@@ -33,8 +34,15 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [openDropdown, setOpenDropdown] = useState<string | null>(null)
+  const [avatarOpen, setAvatarOpen] = useState(false)
   const [mobileAccordion, setMobileAccordion] = useState<string | null>(null)
   const dropdownTimeout = useRef<NodeJS.Timeout | null>(null)
+  const avatarTimeout = useRef<NodeJS.Timeout | null>(null)
+
+  const isLoggedIn = !!session?.user
+  const isSuperadmin = (session?.user as any)?.role === 'superadmin'
+  const userEmail = (session?.user as any)?.email || ''
+  const userInitial = userEmail ? userEmail.charAt(0).toUpperCase() : 'U'
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 10)
@@ -49,6 +57,15 @@ export function Header() {
 
   function handleMouseLeave() {
     dropdownTimeout.current = setTimeout(() => setOpenDropdown(null), 150)
+  }
+
+  function handleAvatarEnter() {
+    if (avatarTimeout.current) clearTimeout(avatarTimeout.current)
+    setAvatarOpen(true)
+  }
+
+  function handleAvatarLeave() {
+    avatarTimeout.current = setTimeout(() => setAvatarOpen(false), 150)
   }
 
   return (
@@ -79,13 +96,11 @@ export function Header() {
                   onClick={() => setOpenDropdown(openDropdown === group.label ? null : group.label)}
                 >
                   {group.label}
-                  <svg className={`w-3.5 h-3.5 transition-transform ${openDropdown === group.label ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${openDropdown === group.label ? 'rotate-180' : ''}`} />
                 </button>
 
                 {openDropdown === group.label && (
-                  <div className="absolute top-full left-0 bg-bg border border-border shadow-sm min-w-[220px] py-2 z-50">
+                  <div className="absolute top-full left-0 bg-bg border border-border shadow-sm min-w-[220px] py-2 z-50 rounded-lg">
                     {group.items.map((item) => (
                       <Link
                         key={item.href}
@@ -103,53 +118,116 @@ export function Header() {
             ))}
           </nav>
 
-          {/* Desktop Auth + Start Here button */}
+          {/* Desktop right side */}
           <div className="hidden md:flex items-center gap-4">
-            <Link
-              href="/start"
-              className="bg-accent text-white px-4 py-2 text-sm font-medium tracking-wide hover:opacity-85 transition-opacity"
-            >
-              Start Here
-            </Link>
-            {session ? (
+            {isLoggedIn ? (
               <>
-                {(session.user as any).role === 'superadmin' && (
-                  <Link
-                    href="/admin/articles"
-                    className="text-sm font-medium text-muted hover:text-text transition-colors"
-                  >
-                    Admin
-                  </Link>
-                )}
+                {/* Dashboard link */}
                 <Link
-                  href="/supplier/dashboard"
+                  href={isSuperadmin ? '/admin/articles' : '/supplier/dashboard'}
                   className="text-sm font-medium text-text hover:opacity-50 transition-opacity"
                 >
                   Dashboard
                 </Link>
-                <button
-                  onClick={() => signOut({ callbackUrl: '/' })}
-                  className="text-sm text-muted hover:text-text transition-colors"
+
+                {/* Avatar dropdown */}
+                <div
+                  className="relative"
+                  onMouseEnter={handleAvatarEnter}
+                  onMouseLeave={handleAvatarLeave}
                 >
-                  Sign out
-                </button>
+                  <button
+                    onClick={() => setAvatarOpen(!avatarOpen)}
+                    className="w-8 h-8 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-sm font-medium hover:bg-[#D04500] transition-colors"
+                  >
+                    {userInitial}
+                  </button>
+
+                  {avatarOpen && (
+                    <div className="absolute top-full right-0 mt-1 bg-bg border border-border shadow-md min-w-[200px] py-2 z-50 rounded-lg">
+                      {isSuperadmin ? (
+                        <>
+                          <Link
+                            href="/admin/articles"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <Shield className="w-4 h-4 text-muted" />
+                            Admin Panel
+                          </Link>
+                          <Link
+                            href="/admin/articles"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <FileText className="w-4 h-4 text-muted" />
+                            Moderation
+                          </Link>
+                          <Link
+                            href="/suppliers"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <Building2 className="w-4 h-4 text-muted" />
+                            Suppliers
+                          </Link>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            href="/supplier/dashboard"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <LayoutDashboard className="w-4 h-4 text-muted" />
+                            Dashboard
+                          </Link>
+                          <Link
+                            href="/supplier/articles"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <FileText className="w-4 h-4 text-muted" />
+                            My Articles
+                          </Link>
+                          <Link
+                            href="/supplier/leads"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <Users className="w-4 h-4 text-muted" />
+                            My Leads
+                          </Link>
+                          <Link
+                            href="/supplier/profile"
+                            className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-text hover:bg-bg-alt transition-colors"
+                            onClick={() => setAvatarOpen(false)}
+                          >
+                            <Building2 className="w-4 h-4 text-muted" />
+                            Company Profile
+                          </Link>
+                        </>
+                      )}
+                      <div className="border-t border-border my-1" />
+                      <button
+                        onClick={() => { signOut({ callbackUrl: '/' }); setAvatarOpen(false) }}
+                        className="flex items-center gap-2.5 px-4 py-2.5 text-sm text-muted hover:text-text hover:bg-bg-alt transition-colors w-full"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Sign Out
+                      </button>
+                    </div>
+                  )}
+                </div>
               </>
             ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="text-sm font-medium text-muted hover:text-text transition-colors"
-                >
-                  Sign in
-                </Link>
-                <Link
-                  href="/register"
-                  className="text-sm font-medium text-text hover:opacity-50 transition-opacity inline-flex items-center gap-1"
-                >
-                  Get Started
-                  <span aria-hidden="true">&rarr;</span>
-                </Link>
-              </>
+              /* Not logged in — only Start Here button, no Sign in / Get Started */
+              <Link
+                href="/start"
+                className="bg-accent text-white px-4 py-2 text-sm font-medium tracking-wide rounded-lg hover:bg-[#D04500] transition-colors"
+              >
+                Start Here
+              </Link>
             )}
           </div>
 
@@ -174,14 +252,53 @@ export function Header() {
       {mobileOpen && (
         <div className="md:hidden fixed inset-0 top-16 bg-bg z-[60] overflow-y-auto">
           <nav className="flex flex-col px-6 py-6 gap-0 min-h-full">
-            {/* Start Here — prominent first item */}
-            <Link
-              href="/start"
-              className="bg-accent text-white text-lg font-medium py-3 px-4 mb-4 text-center"
-              onClick={() => setMobileOpen(false)}
-            >
-              Start Here
-            </Link>
+            {isLoggedIn ? (
+              /* Logged-in supplier mobile menu */
+              <>
+                <Link
+                  href={isSuperadmin ? '/admin/articles' : '/supplier/dashboard'}
+                  className="bg-accent text-white text-lg font-medium py-3 px-4 mb-4 text-center rounded-lg"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  Dashboard
+                </Link>
+
+                {isSuperadmin ? (
+                  <div className="border-b border-border pb-3 mb-3 space-y-1">
+                    <Link href="/admin/articles" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      Admin Panel
+                    </Link>
+                    <Link href="/admin/articles" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      Moderation
+                    </Link>
+                    <Link href="/suppliers" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      Suppliers
+                    </Link>
+                  </div>
+                ) : (
+                  <div className="border-b border-border pb-3 mb-3 space-y-1">
+                    <Link href="/supplier/articles" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      My Articles
+                    </Link>
+                    <Link href="/supplier/leads" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      My Leads
+                    </Link>
+                    <Link href="/supplier/profile" className="block py-2 text-base text-text" onClick={() => setMobileOpen(false)}>
+                      Company Profile
+                    </Link>
+                  </div>
+                )}
+              </>
+            ) : (
+              /* Not logged in — Start Here first */
+              <Link
+                href="/start"
+                className="bg-accent text-white text-lg font-medium py-3 px-4 mb-4 text-center rounded-lg"
+                onClick={() => setMobileOpen(false)}
+              >
+                Start Here
+              </Link>
+            )}
 
             {/* Accordion groups */}
             {navGroups.map((group) => (
@@ -191,12 +308,9 @@ export function Header() {
                   className="w-full flex items-center justify-between text-lg font-display font-light text-text py-4"
                 >
                   {group.label}
-                  <svg
+                  <ChevronDown
                     className={`w-4 h-4 transition-transform ${mobileAccordion === group.label ? 'rotate-180' : ''}`}
-                    fill="none" stroke="currentColor" viewBox="0 0 24 24"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                  />
                 </button>
                 {mobileAccordion === group.label && (
                   <div className="pb-3 pl-4 space-y-1">
@@ -215,42 +329,27 @@ export function Header() {
               </div>
             ))}
 
+            {/* Bottom section */}
             <div className="pt-6 space-y-4">
-              {session ? (
-                <>
-                  <Link
-                    href="/supplier/dashboard"
-                    className="block text-sm font-medium text-text"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Dashboard
-                  </Link>
-                  <button
-                    onClick={() => { signOut({ callbackUrl: '/' }); setMobileOpen(false) }}
-                    className="block text-sm text-muted"
-                  >
-                    Sign out
-                  </button>
-                </>
+              {isLoggedIn ? (
+                <button
+                  onClick={() => { signOut({ callbackUrl: '/' }); setMobileOpen(false) }}
+                  className="block text-sm text-muted"
+                >
+                  Sign Out
+                </button>
               ) : (
-                <>
-                  <Link
-                    href="/login"
-                    className="block text-sm text-muted"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Sign in
-                  </Link>
-                  <Link
-                    href="/register"
-                    className="block text-sm font-medium text-text"
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    Get Started &rarr;
-                  </Link>
-                </>
+                /* For Suppliers link — small, at bottom */
+                <Link
+                  href="/join"
+                  className="block text-sm text-muted hover:text-text transition-colors"
+                  onClick={() => setMobileOpen(false)}
+                >
+                  For Suppliers &rarr;
+                </Link>
               )}
             </div>
+
             <div className="mt-auto pt-8 pb-4 text-xs text-muted">
               info@boattomorrow.com
             </div>

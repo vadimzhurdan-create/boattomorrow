@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { ArrowRight } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -22,13 +23,20 @@ export function Footer() {
               <li><Link href="/learning" className="hover:text-text transition-colors">Learning</Link></li>
               <li><Link href="/routes" className="hover:text-text transition-colors">Routes</Link></li>
               <li><Link href="/tips" className="hover:text-text transition-colors">Tips</Link></li>
+              <li><Link href="/start" className="hover:text-text transition-colors">Start Here</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-medium uppercase tracking-widest text-muted mb-4">For Suppliers</h4>
+            <h4 className="text-xs font-medium uppercase tracking-widest text-muted mb-4">
+              For Charter Companies & Sailing Schools
+            </h4>
             <ul className="space-y-2 text-sm text-muted">
-              <li><Link href="/register" className="hover:text-text transition-colors">Join as Supplier</Link></li>
+              <li>
+                <Link href="/join" className="hover:text-text transition-colors inline-flex items-center gap-1 font-medium text-text">
+                  Join as Supplier <ArrowRight className="w-3 h-3" />
+                </Link>
+              </li>
               <li><Link href="/login" className="hover:text-text transition-colors">Supplier Login</Link></li>
               <li><Link href="/suppliers" className="hover:text-text transition-colors">All Suppliers</Link></li>
             </ul>
@@ -37,7 +45,11 @@ export function Footer() {
           <div>
             <h4 className="text-xs font-medium uppercase tracking-widest text-muted mb-4">Contact</h4>
             <ul className="space-y-2 text-sm text-muted">
-              <li>info@boattomorrow.com</li>
+              <li>
+                <a href="mailto:info@boattomorrow.com" className="hover:text-text transition-colors">
+                  info@boattomorrow.com
+                </a>
+              </li>
             </ul>
           </div>
         </div>

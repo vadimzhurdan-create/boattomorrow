@@ -273,19 +273,12 @@ export default async function HomePage() {
       {/* CTA */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="my-16 bg-bg-alt border border-border rounded-lg p-8 md:p-16 text-center section-animate">
-          <h2 className="font-display text-3xl md:text-[2.5rem] font-light mb-4">
-            Join BOATTOMORROW
-          </h2>
-          <p className="text-muted max-w-md mx-auto mb-8 text-base">
-            Are you a charter company, boat manufacturer, or sailing school?
-            Reach thousands of sailing enthusiasts.
+          <p className="text-sm text-muted mb-2">
+            Are you a charter company?{' '}
+            <Link href="/join" className="text-accent hover:text-[#D04500] font-medium transition-colors inline-flex items-center gap-1">
+              Join BOATTOMORROW <span aria-hidden="true">&rarr;</span>
+            </Link>
           </p>
-          <Link
-            href="/register"
-            className="inline-block bg-[#E8500A] text-white px-8 py-3.5 rounded-lg text-base font-semibold tracking-wide hover:bg-[#D04500] transition-colors shadow-sm hover:shadow-md"
-          >
-            Register as a Supplier
-          </Link>
         </div>
       </section>
     </div>

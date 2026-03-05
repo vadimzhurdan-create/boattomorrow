@@ -7,38 +7,26 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent } from '@/components/ui/Card'
+import { Ship, GraduationCap, Wrench, ArrowRight } from 'lucide-react'
 
 const supplierTypes = [
   {
     value: 'charter',
     label: 'Charter Company',
     description: 'Yacht charter services, boat rentals, and sailing experiences',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M3 17h1l1-5h14l1 5h1M5 17l-2 4h18l-2-4M12 3l-4 9h8l-4-9z" />
-      </svg>
-    ),
+    icon: Ship,
   },
   {
     value: 'manufacturer',
-    label: 'Boat Manufacturer',
+    label: 'Yacht Builder / Distributor',
     description: 'Boat builders, yacht manufacturers, and marine equipment brands',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-      </svg>
-    ),
+    icon: Wrench,
   },
   {
     value: 'school',
     label: 'Sailing School',
-    description: 'Sailing academies, training centers, and certification programs',
-    icon: (
-      <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-      </svg>
-    ),
+    description: 'Sailing academies, training centres, and certification programmes',
+    icon: GraduationCap,
   },
 ]
 
@@ -106,7 +94,6 @@ export default function RegisterPage() {
       })
 
       if (signInResult?.error) {
-        // Registration succeeded but auto-login failed, redirect to login
         router.push('/login')
       } else {
         router.push('/supplier/dashboard')
@@ -122,23 +109,24 @@ export default function RegisterPage() {
     <div className="w-full max-w-2xl">
       <div className="text-center mb-8">
         <Link href="/" className="inline-flex items-center gap-1">
-          <span className="text-3xl font-bold text-primary-600">BOAT</span>
-          <span className="text-3xl font-bold text-accent-500">TOMORROW</span>
+          <span className="text-3xl font-bold text-[#111]">BOAT</span>
+          <span className="text-3xl font-bold text-[#E8500A]">TOMORROW</span>
         </Link>
-        <p className="mt-2 text-gray-600">Register your company on BOATTOMORROW</p>
+        <h1 className="mt-4 text-2xl font-bold text-[#111]">Create your supplier account</h1>
+        <p className="mt-2 text-[#6B6B6B]">Free to join. Start publishing in minutes.</p>
       </div>
 
       {/* Step indicator */}
       <div className="flex items-center justify-center mb-8">
         <div className="flex items-center gap-3">
           <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-            step >= 1 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'
+            step >= 1 ? 'bg-[#E8500A] text-white' : 'bg-gray-200 text-gray-500'
           }`}>
             1
           </div>
-          <div className={`w-16 h-0.5 ${step >= 2 ? 'bg-primary-600' : 'bg-gray-200'}`} />
+          <div className={`w-16 h-0.5 ${step >= 2 ? 'bg-[#E8500A]' : 'bg-gray-200'}`} />
           <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium ${
-            step >= 2 ? 'bg-primary-600 text-white' : 'bg-gray-200 text-gray-500'
+            step >= 2 ? 'bg-[#E8500A] text-white' : 'bg-gray-200 text-gray-500'
           }`}>
             2
           </div>
@@ -147,21 +135,26 @@ export default function RegisterPage() {
 
       {step === 1 && (
         <div>
-          <h2 className="text-xl font-semibold text-gray-900 text-center mb-6">
+          <h2 className="text-xl font-semibold text-[#111] text-center mb-6">
             What type of supplier are you?
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {supplierTypes.map((type) => (
-              <button
-                key={type.value}
-                onClick={() => handleTypeSelect(type.value)}
-                className="bg-white rounded-xl border-2 border-gray-100 p-6 text-left hover:border-primary-400 hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-              >
-                <div className="text-primary-600 mb-3">{type.icon}</div>
-                <h3 className="font-semibold text-gray-900 mb-1">{type.label}</h3>
-                <p className="text-sm text-gray-500">{type.description}</p>
-              </button>
-            ))}
+            {supplierTypes.map((type) => {
+              const Icon = type.icon
+              return (
+                <button
+                  key={type.value}
+                  onClick={() => handleTypeSelect(type.value)}
+                  className="bg-white rounded-xl border-2 border-[#E0E0E0] p-6 text-left hover:border-[#E8500A] hover:shadow-md transition-all focus:outline-none focus:ring-2 focus:ring-[#E8500A]/30 focus:ring-offset-2"
+                >
+                  <div className="w-12 h-12 rounded-full bg-[#FFF8F5] flex items-center justify-center mb-4">
+                    <Icon className="w-6 h-6 text-[#E8500A]" />
+                  </div>
+                  <h3 className="font-semibold text-[#111] mb-1">{type.label}</h3>
+                  <p className="text-sm text-[#6B6B6B]">{type.description}</p>
+                </button>
+              )
+            })}
           </div>
         </div>
       )}
@@ -170,16 +163,16 @@ export default function RegisterPage() {
         <Card>
           <CardContent className="py-8">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-semibold text-gray-900">Company Details</h2>
+              <h2 className="text-xl font-semibold text-[#111]">Company Details</h2>
               <button
                 onClick={() => setStep(1)}
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+                className="text-sm text-[#E8500A] hover:text-[#D04500] font-medium transition-colors"
               >
                 Change type
               </button>
             </div>
 
-            <div className="mb-6 px-3 py-2 bg-primary-50 rounded-lg text-sm text-primary-700">
+            <div className="mb-6 px-3 py-2 bg-[#FFF8F5] border border-[#E8500A]/20 rounded-lg text-sm text-[#111]">
               Registering as: <strong>{supplierTypes.find((t) => t.value === supplierType)?.label}</strong>
             </div>
 
@@ -241,10 +234,10 @@ export default function RegisterPage() {
         </Card>
       )}
 
-      <p className="mt-6 text-center text-sm text-gray-600">
+      <p className="mt-6 text-center text-sm text-[#6B6B6B]">
         Already have an account?{' '}
-        <Link href="/login" className="text-primary-600 font-medium hover:text-primary-700">
-          Sign in
+        <Link href="/login" className="text-[#E8500A] font-medium hover:text-[#D04500] transition-colors inline-flex items-center gap-1">
+          Sign in <ArrowRight className="w-3 h-3" />
         </Link>
       </p>
     </div>

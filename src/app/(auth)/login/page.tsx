@@ -7,6 +7,7 @@ import Link from 'next/link'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
 import { Card, CardContent } from '@/components/ui/Card'
+import { ArrowRight, Compass } from 'lucide-react'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -43,10 +44,11 @@ export default function LoginPage() {
     <div className="w-full max-w-md">
       <div className="text-center mb-8">
         <Link href="/" className="inline-flex items-center gap-1">
-          <span className="text-3xl font-bold text-primary-600">BOAT</span>
-          <span className="text-3xl font-bold text-accent-500">TOMORROW</span>
+          <span className="text-3xl font-bold text-[#111]">BOAT</span>
+          <span className="text-3xl font-bold text-[#E8500A]">TOMORROW</span>
         </Link>
-        <p className="mt-2 text-gray-600">Sign in to your supplier account</p>
+        <h1 className="mt-4 text-2xl font-bold text-[#111]">Supplier Login</h1>
+        <p className="mt-2 text-[#6B6B6B]">Manage your articles, leads, and company profile</p>
       </div>
 
       <Card>
@@ -90,12 +92,19 @@ export default function LoginPage() {
         </CardContent>
       </Card>
 
-      <p className="mt-6 text-center text-sm text-gray-600">
-        Don&apos;t have an account?{' '}
-        <Link href="/register" className="text-primary-600 font-medium hover:text-primary-700">
-          Register as a supplier
-        </Link>
-      </p>
+      <div className="mt-6 space-y-3 text-center text-sm">
+        <p className="text-[#6B6B6B]">
+          Don&apos;t have an account?{' '}
+          <Link href="/join" className="text-[#E8500A] font-medium hover:text-[#D04500] transition-colors inline-flex items-center gap-1">
+            Join as supplier <ArrowRight className="w-3 h-3" />
+          </Link>
+        </p>
+        <p className="text-[#999]">
+          <Link href="/start" className="hover:text-[#6B6B6B] transition-colors inline-flex items-center gap-1">
+            <Compass className="w-3 h-3" /> Looking for sailing info? Visit our Start Here guide
+          </Link>
+        </p>
+      </div>
     </div>
   )
 }

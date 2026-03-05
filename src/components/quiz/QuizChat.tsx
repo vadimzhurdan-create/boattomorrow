@@ -234,14 +234,16 @@ export function QuizChat({
           body: formData,
         })
 
+        const data = await res.json()
+
         if (!res.ok) {
-          toast.error(`Failed to upload ${file.name}`)
+          toast.error(data.error || `Failed to upload ${file.name}`)
           continue
         }
 
-        const data = await res.json()
-        if (data.url) {
-          newUrls.push(data.url)
+        const url = data.data?.url || data.url
+        if (url) {
+          newUrls.push(url)
         }
       }
 

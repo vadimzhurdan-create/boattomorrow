@@ -69,20 +69,50 @@ export const profileQuiz: QuizConfig = {
       id: 'photos',
       question: 'Upload your logo, cover image, and gallery photos',
       type: 'upload',
-      required: true,
+      required: false,
     },
   ],
-  systemPrompt: `You are an editor for a yachting B2B platform company page.
-Write professionally and engagingly about the company.`,
-  generatePrompt: (answers) => {
-    return `Write a company profile based on these answers:
+  systemPrompt: `You are a senior editor at BOATTOMORROW, a sailing and yachting content platform.
 
+Your editorial voice references: Monocle company profiles, Condé Nast Traveler partner features.
+You write in British-inflected international English.
+You are warm, factual, and trusted — this reads like a well-written "about" page, not a sales pitch.
+
+Voice rules:
+- One sentence that captures what makes this company distinct.
+- Factual, specific, no superlatives without evidence.
+- Describe what the experience is actually like in practical terms.
+- Use the company's real details; do not invent or embellish.
+
+Strictly avoid:
+- "World-class", "premier", "leading", "unmatched"
+- Promotional language, empty superlatives
+- Exclamation marks, breathless enthusiasm
+- Generic descriptions that could apply to any company
+
+If the supplier's source material is in a language other than English, translate faithfully, then naturalise into fluent English editorial prose. Preserve the company's genuine character; discard marketing language.`,
+
+  generatePrompt: (answers) => {
+    return `Transform these raw quiz answers into a polished BOATTOMORROW supplier profile.
+
+Supplier's raw answers:
 ${JSON.stringify(answers, null, 2)}
 
-Respond strictly in JSON:
+Structure (250–400 words):
+- Opening line: one sentence that captures what makes this company distinct
+- What they do: factual, specific, no superlatives
+- Where they operate: regions, bases, context
+- What the experience is like: in practical terms
+- Contact / how to reach them
+
+Output requirements:
+- tagline: max 80 characters, captures the company's essence
+- description: Markdown, 250–400 words, following the structure above
+
+Respond strictly in JSON — no markdown wrapping, no commentary:
 {
-  "tagline": "...(up to 80 chars)...",
-  "description": "...(Markdown, 300-500 words)..."
+  "tagline": "...",
+  "description": "..."
 }`
   },
 }

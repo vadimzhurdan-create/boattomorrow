@@ -1,0 +1,23 @@
+# BOATTOMORROW - Yachting Content Platform
+
+> BOATTOMORROW is an editorial platform covering sailing destinations,
+> yacht charter, boat reviews, and sailing education.
+> Content is written by verified yachting industry suppliers and
+> edited to professional standards.
+
+## Content
+
+- Destinations: https://boattomorrow.com/destinations
+- Boats & Yachts: https://boattomorrow.com/boats
+- Sailing Routes: https://boattomorrow.com/routes
+- Learning: https://boattomorrow.com/learning
+- Tips: https://boattomorrow.com/tips
+- Gear: https://boattomorrow.com/gear
+- Suppliers: https://boattomorrow.com/suppliers
+
+## About
+
+Publisher: BOATTOMORROW
+Language: English
+Update frequency: Daily
+Content type: Editorial articles, destination guides, boat reviews, sailing courses

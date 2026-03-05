@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getAnthropic } from '@/lib/anthropic'
+import { getAnthropic, ARTICLE_GEN_MODEL } from '@/lib/anthropic'
 import { getQuizConfig } from '@/lib/quiz-configs'
 import slugify from 'slugify'
 
@@ -63,13 +63,29 @@ export async function POST(request: NextRequest) {
 
     const answers = quizSession.answers as Record<string, string>
     const imageUrls = quizSession.imageUrls || []
-    const generatePrompt = config.generatePrompt(answers, imageUrls)
+    let generatePrompt = config.generatePrompt(answers, imageUrls)
+
+    // Fetch published articles for contextual interlinking
+    const existingArticles = await prisma.article.findMany({
+      where: { status: 'published' },
+      select: { title: true, slug: true, tags: true, category: true, region: true },
+      take: 30,
+      orderBy: { publishedAt: 'desc' },
+    })
+
+    if (existingArticles.length > 0) {
+      const contextLinks = existingArticles
+        .map((a) => `- [${a.title}](/articles/${a.slug}) [${a.category}${a.region ? `, ${a.region}` : ''}]`)
+        .join('\n')
+
+      generatePrompt += `\n\nContextual interlinking — use 2–4 of these links naturally in the article text where relevant. Do not force them:\n${contextLinks}`
+    }
 
     // Call Anthropic Claude API
     const anthropic = getAnthropic()
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 4096,
+      model: ARTICLE_GEN_MODEL,
+      max_tokens: 8192,
       system: config.systemPrompt,
       messages: [{ role: 'user', content: generatePrompt }],
     })
@@ -108,7 +124,7 @@ export async function POST(request: NextRequest) {
       articleSlug = `${articleSlug}-${Date.now()}`
     }
 
-    // Create article record
+    // Create article record with GEO/AEO fields
     const article = await prisma.article.create({
       data: {
         supplierId: session.user.supplierId,
@@ -126,6 +142,10 @@ export async function POST(request: NextRequest) {
         coverImageUrl: imageUrls[0] || null,
         imageUrls: imageUrls,
         quizSessionId: quizSession.id,
+        // GEO/AEO fields
+        answerCapsule: generatedData.answerCapsule || null,
+        faqItems: generatedData.faqItems || null,
+        keyFacts: generatedData.keyFacts || null,
       },
     })
 

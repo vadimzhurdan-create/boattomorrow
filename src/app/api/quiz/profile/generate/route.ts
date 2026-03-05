@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getAnthropic } from '@/lib/anthropic'
+import { getAnthropic, PROFILE_GEN_MODEL } from '@/lib/anthropic'
 import { getQuizConfig } from '@/lib/quiz-configs'
 
 export const maxDuration = 60
@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     // Call Anthropic Claude API
     const anthropic = getAnthropic()
     const response = await anthropic.messages.create({
-      model: 'claude-sonnet-4-20250514',
+      model: PROFILE_GEN_MODEL,
       max_tokens: 4096,
       system: config.systemPrompt,
       messages: [{ role: 'user', content: generatePrompt }],

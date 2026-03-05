@@ -6,6 +6,7 @@ import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { prisma } from '@/lib/prisma'
 import { ArticleCard } from '@/components/articles/ArticleCard'
+import { Breadcrumbs } from '@/components/Breadcrumbs'
 import { SectionHeading } from '@/components/ui/SectionHeading'
 import { LeadForm } from '@/components/leads/LeadForm'
 import { supplierTypeLabels } from '@/lib/utils'
@@ -161,15 +162,13 @@ export default async function SupplierPage({ params }: PageProps) {
       />
 
       <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
-        {/* Breadcrumb */}
-        <nav className="mb-8">
-          <Link
-            href="/suppliers"
-            className="text-xs uppercase tracking-widest text-muted hover:text-text transition-colors"
-          >
-            &larr; All suppliers
-          </Link>
-        </nav>
+        {/* Breadcrumbs */}
+        <Breadcrumbs
+          items={[
+            { label: 'Suppliers', href: '/suppliers' },
+            { label: supplier.name },
+          ]}
+        />
 
         {/* Header */}
         <div className="border-b border-border pb-8 mb-8">

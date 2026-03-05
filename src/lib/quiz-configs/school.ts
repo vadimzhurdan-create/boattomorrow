@@ -63,11 +63,33 @@ export const schoolArticleQuiz: QuizConfig = {
       id: 'photos',
       question: 'Upload photos of the school and courses',
       type: 'upload',
-      required: true,
+      required: false,
     },
   ],
-  systemPrompt: `You are a professional SEO copywriter for a yachting magazine.
-Write engagingly and expertly about sailing education and training.`,
+  systemPrompt: `You are a senior editor at BOATTOMORROW, a sailing and yachting content platform.
+
+Your editorial voice references: Outside Magazine how-to guides, Yachting Monthly practical features, Cruising World.
+You write in British-inflected international English.
+You are friendly, intelligent, modern, and explanatory — never promotional or patronising.
+
+Voice rules:
+- Write like a knowledgeable friend who sails — curious, warm, direct, and always worth reading.
+- Encouraging, clear, expert. Never condescending.
+- Be specific: "by day three, most students can confidently tack and gybe in 12 knots" beats "you'll learn the basics."
+- Active voice as default. Vary rhythm. Short sentences have power.
+- Explain what certifications actually mean in practical terms.
+- Translate nautical terms briefly in-context.
+
+Strictly avoid:
+- "Life-changing", "unforgettable experience", "the adventure of a lifetime"
+- Promotional language, vague promises
+- Filler transitions, exclamation marks
+- Generic descriptions that could apply to any school
+
+If the supplier's source material is in a language other than English, translate faithfully, then naturalise into fluent English editorial prose. Preserve genuine local knowledge and teaching insight; discard marketing language. Do not invent facts the supplier did not provide.
+
+Numbers: distances in nautical miles (nm); wind in Beaufort + knots; temperatures in °C.`,
+
   generatePrompt: (answers, imageUrls) => {
     const contentTypeMap: Record<string, string> = {
       'Course overview': 'learning',
@@ -75,35 +97,57 @@ Write engagingly and expertly about sailing education and training.`,
       'Sailing tip': 'tips',
     }
     const category = contentTypeMap[answers.contentType] || 'learning'
-    return `Based on the sailing school's answers, write an article for the "${category}" category.
 
-Quiz answers:
+    return `Transform this sailing school's raw quiz answers into a polished BOATTOMORROW editorial article for the "${category}" category.
+
+Supplier's raw answers:
 ${JSON.stringify(answers, null, 2)}
 
-Number of photos provided: ${imageUrls.length}
+Photos provided: ${imageUrls.length}
 
-Requirements:
-- H1 (up to 60 chars, with the course/school keyword)
-- Introduction 2-3 paragraphs
-- 4-6 sections with H2 headings
-- Conclusion with call to action
-- metaTitle (60 chars)
-- metaDescription (160 chars)
-- tags: 5 items
-- slug (latin, hyphenated)
-- altTexts for each photo (${imageUrls.length} photos)
+Structure (800–1,200 words):
+- Opening: a specific moment or insight that draws the reader in
+- What the course covers: practical, concrete detail — not a brochure list
+- Where it happens: the location as a sailor would experience it
+- Who it's for: honest guidance on level, fitness, expectations
+- What you leave with: certification explained in practical terms
+- Closing: one honest detail that sticks
 
-Respond strictly in JSON:
+GEO/AEO requirements:
+- answerCapsule: Write a 40–60 word paragraph that directly answers the main question of the article. This sits after the H1 and before the first section. AI systems extract this for citation. Be factual, specific, and self-contained.
+- In the article content, after all main sections, add a "## Frequently Asked Questions" section with 4–5 Q&A pairs. Questions should be phrased as a user would ask in ChatGPT or Perplexity. Answers: 2–3 sentences, self-contained.
+- faqItems: Extract the same FAQ pairs as a JSON array of {q, a} objects.
+- keyFacts: Generate 6–8 key facts as [{label, value}] pairs relevant to the category.
+
+Output requirements:
+- title: compelling H1, max 60 characters, includes course/school keyword
+- slug: lowercase, hyphenated, Latin characters only
+- answerCapsule: 40–60 word direct answer (plain text, no markdown)
+- content: full Markdown article body following the structure above, including FAQ section
+- excerpt: 1–2 sentence hook for article cards (max 200 chars)
+- metaTitle: SEO title, max 60 characters
+- metaDescription: SEO description, max 155 characters
+- tags: exactly 5 relevant tags
+- category: "${category}"
+- region: geographic region mentioned
+- keyFacts: array of 6–8 {label, value} pairs
+- faqItems: array of 4–5 {q, a} pairs matching the FAQ in content
+- altTexts: array of ${imageUrls.length} descriptive alt texts for photos
+
+Respond strictly in JSON — no markdown wrapping, no commentary:
 {
   "title": "...",
   "slug": "...",
-  "content": "...(Markdown)...",
+  "answerCapsule": "...",
+  "content": "...",
   "excerpt": "...",
   "metaTitle": "...",
   "metaDescription": "...",
   "tags": ["..."],
   "category": "${category}",
   "region": "...",
+  "keyFacts": [{"label": "...", "value": "..."}],
+  "faqItems": [{"q": "...", "a": "..."}],
   "altTexts": ["..."]
 }`
   },

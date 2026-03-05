@@ -133,12 +133,30 @@ model Article {
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
+  // GEO/AEO fields
+  answerCapsule  String?                  // 40-60 word answer capsule for AI citation
+  faqItems       Json?                    // [{ q: string, a: string }]
+  keyFacts       Json?                    // [{ label: string, value: string }]
+  lastReviewedAt DateTime?               // editorial review date for freshness
+
+  // Cornerstone architecture
+  isCornerstone  Boolean         @default(false)
+  cornerstoneId  String?
+  cornerstone    Article?        @relation("CornerstoneArticles", fields: [cornerstoneId], references: [id])
+  subArticles    Article[]       @relation("CornerstoneArticles")
+
+  // Destination linking
+  destinationId  String?
+  destination    Destination?    @relation(fields: [destinationId], references: [id])
+
   leads Lead[]
 
   @@index([supplierId])
   @@index([category])
   @@index([status])
   @@index([slug])
+  @@index([region])
+  @@index([destinationId])
 }
 
 model QuizSession {
@@ -192,4 +210,16 @@ model Category {
   allowedSupplierTypes String[]
   sortOrder            Int      @default(0)
   isActive             Boolean  @default(true)
+}
+
+model Destination {
+  id            String    @id @default(uuid())
+  canonicalName String    @unique @db.VarChar(255)  // "Croatia - Dalmatian Coast"
+  slug          String    @unique @db.VarChar(255)  // "croatia-dalmatian-coast"
+  aliases       String[]                            // ["Croatia", "Dalmatia"]
+  region        String    @db.VarChar(100)          // "Mediterranean"
+  description   String?                             // hub page intro text
+  coverImageUrl String?
+  articles      Article[]
+  createdAt     DateTime  @default(now())
 }

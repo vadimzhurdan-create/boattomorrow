@@ -32,6 +32,19 @@ export const categoryLabels: Record<string, string> = {
   gear: 'Gear & Tech',
 }
 
+export const categoryPaths: Record<string, string> = {
+  destination: '/destinations',
+  route: '/routes',
+  boat: '/boats',
+  learning: '/learning',
+  tips: '/tips',
+  gear: '/gear',
+}
+
+export function getCategoryPath(category: string): string {
+  return categoryPaths[category] || `/${category}`
+}
+
 export const supplierTypeLabels: Record<string, string> = {
   charter: 'Charter Company',
   manufacturer: 'Boat Manufacturer',

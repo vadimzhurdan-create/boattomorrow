@@ -51,6 +51,7 @@ export default async function HomePage() {
       },
     }),
     prisma.supplier.findMany({
+      where: { profileStatus: 'published', status: 'active' },
       take: 3,
       orderBy: { createdAt: 'desc' },
       select: {
@@ -63,7 +64,7 @@ export default async function HomePage() {
       },
     }),
     prisma.article.count({ where: { status: 'published' } }),
-    prisma.supplier.count(),
+    prisma.supplier.count({ where: { profileStatus: 'published', status: 'active' } }),
     prisma.article.count({ where: { status: 'published', category: 'destination' } }),
   ])
 

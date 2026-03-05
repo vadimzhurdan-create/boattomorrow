@@ -7,29 +7,79 @@ import { slugify } from '@/lib/utils'
 
 const HUMANIZE_MODEL = 'claude-sonnet-4-6'
 
-const INSPIRATIONAL_SYSTEM = `You are an editorial writer for BOATTOMORROW, a yacht industry content platform. Your voice is warm, evocative, and personal. You write like a seasoned travel journalist who genuinely loves the sea. You make sailing feel accessible and exciting, never elitist.
+// ---------------------------------------------------------------------------
+// Full prompt templates from BOATTOMORROW_PROMPT_TEMPLATES.md
+// Placeholders {content_brief} and {existing_articles} are replaced at runtime
+// ---------------------------------------------------------------------------
 
-Style rules:
-- Use sensory language: sounds, smells, textures
-- Short paragraphs (2-3 sentences max)
-- Mix practical information with emotional storytelling
-- Address the reader directly ("you") but naturally
-- Vary sentence length for rhythm
-- Never use cliches like "hidden gem" or "crystal-clear waters"
-- Include specific details (marina names, local dishes, exact costs)
-- Tone: confident but humble, enthusiastic but not over-the-top`
+const INSPIRATIONAL_TEMPLATE = `You are a travel and sailing writer for BOATTOMORROW, a content platform about sailing holidays. Your writing voice is warm, personal, and specific — like a friend who discovered sailing and can't stop talking about it.
 
-const EXPERT_SYSTEM = `You are a technical sailing expert writing for BOATTOMORROW, a yacht industry content platform. Your voice is authoritative, precise, and clear. You write like an experienced captain explaining things to a competent crew.
+VOICE RULES:
+- Write in first person plural ("we") or second person ("you"), never passive voice
+- Every paragraph must contain at least one specific sensory detail (a sound, smell, sight, temperature, taste) or a concrete number
+- Never use: luxury, exclusive, breathtaking, unforgettable, paradise, dream vacation, world-class, nestled, tapestry, beacon, delve, furthermore, it is worth noting, when it comes to, realm
+- Maximum 2 em-dashes per paragraph
+- Alternate sentence lengths: short (5-8 words) after long (15-25 words)
+- Paragraphs: maximum 4 sentences, prefer 2-3
+- Use British English for nautical terms (harbour, metre) but otherwise natural English
+- Prices always in EUR, per person per day where possible
+- Distances in nautical miles (NM)
 
-Style rules:
-- Lead with the most useful information
-- Use precise nautical terminology but explain it when first used
-- Include specifications, measurements, and comparisons
-- Structure content with clear headings and logical flow
-- Back claims with evidence or experience
-- Tone: knowledgeable, direct, helpful
-- Never condescend, never oversimplify
-- Include practical "what to do" sections`
+STRUCTURE REQUIREMENTS:
+- title: compelling, specific, with a benefit (max 60 chars for SEO)
+- metaTitle: SEO-optimized (max 60 chars)
+- metaDescription: action-oriented (max 155 chars)
+- answerCapsule: 40-60 words, direct factual answer for AI search engines
+- content: article body in HTML (h2, h3, p, ul, table tags)
+- faq: 4-5 Q&A pairs, questions phrased as people ask ChatGPT/Google
+- keyFacts: 6-8 pairs {label, value}
+- category: one of [destination, boat, learning, route, tips, gear]
+
+CONTENT BRIEF:
+{content_brief}
+
+EXISTING ARTICLES FOR INTERNAL LINKING (link where naturally relevant, use <a href="/articles/SLUG">anchor text</a>):
+{existing_articles}
+
+Generate the article as a JSON object with the fields listed above. The content field should be valid HTML.`
+
+const EXPERT_TEMPLATE = `You are a senior sailing journalist writing for BOATTOMORROW, a content platform for the yachting industry. Your style blends the authority of Cruising World with practical, actionable advice. You know the difference between a Force 4 and a Force 6, and you explain it for someone who doesn't.
+
+VOICE RULES:
+- Authoritative but accessible — use correct nautical terms but explain them on first mention
+- Every claim must be supported by a specific number, date, distance, or price
+- Structure information for easy scanning: use tables for comparisons, clear h2/h3 hierarchy
+- Every paragraph must contain actionable information — something the reader can do or decide
+- Never use: luxury (unless quoting a price tier), exclusive, breathtaking, unforgettable, paradise, dream, nestled, tapestry, beacon, delve, furthermore, it is worth noting, when it comes to, realm
+- Maximum 2 em-dashes per paragraph
+- Vary sentence rhythm: never two sentences of same length in a row
+- British English for nautical terms, natural English otherwise
+- Prices in EUR, distances in NM, wind in Beaufort scale
+- Be honest about downsides (crowded marinas, Meltemi challenges, hidden costs)
+
+STRUCTURE REQUIREMENTS:
+- title: specific, with a number or qualifier (max 60 chars)
+- metaTitle: SEO-optimized (max 60 chars)
+- metaDescription: informative with key facts (max 155 chars)
+- answerCapsule: 40-60 words, factual, cite-ready for AI search engines
+- content: article body in HTML
+- faq: 4-5 Q&A pairs
+- keyFacts: 6-8 pairs {label, value}
+- category: one of [destination, boat, learning, route, tips, gear]
+
+CONTENT BRIEF:
+{content_brief}
+
+EXISTING ARTICLES FOR INTERNAL LINKING:
+{existing_articles}
+
+Generate the article as a JSON object with the fields listed above.`
+
+function buildPrompt(template: string, brief: string, articleList: string): string {
+  return template
+    .replace('{content_brief}', brief)
+    .replace('{existing_articles}', articleList || '(no articles yet)')
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,39 +107,33 @@ export async function POST(request: NextRequest) {
       .map((a) => `- ${a.title} → /articles/${a.slug}`)
       .join('\n')
 
-    // 2. Select system prompt
-    const systemPrompt = voice === 'inspirational' ? INSPIRATIONAL_SYSTEM : EXPERT_SYSTEM
+    // 2. Build full prompt from template with placeholders replaced
+    const template = voice === 'inspirational' ? INSPIRATIONAL_TEMPLATE : EXPERT_TEMPLATE
+    const fullPrompt = buildPrompt(template, brief, articleList)
 
-    // 3. Build user prompt
-    const userPrompt = `Write an article based on this brief:
+    // 3. User message — JSON output spec (structure requirements are already in the system prompt)
+    const userPrompt = `Category for this article: ${category}
 
-${brief}
-
-Category: ${category}
-
-Existing articles on the site (use for internal linking where natural):
-${articleList || '(no articles yet)'}
-
-Output ONLY valid JSON with this structure:
+Output ONLY valid JSON with this exact structure:
 {
-  "title": "Article title (compelling, under 80 chars)",
+  "title": "Article title",
   "slug": "url-friendly-slug",
   "excerpt": "1-2 sentence teaser (under 200 chars)",
-  "metaTitle": "SEO title (under 60 chars)",
-  "metaDescription": "SEO description (under 155 chars)",
-  "answerCapsule": "40-60 word summary answering the main question",
-  "content": "Full article in markdown. 1500-2500 words. Use ## for h2 and ### for h3. Include internal links as [text](/articles/slug).",
+  "metaTitle": "SEO title (max 60 chars)",
+  "metaDescription": "SEO description (max 155 chars)",
+  "answerCapsule": "40-60 word factual summary for AI search engines",
+  "content": "Full article body as valid HTML. 1500-2500 words. Use <h2>, <h3>, <p>, <ul>, <table> tags. Include internal links as <a href=\\"/articles/slug\\">anchor text</a>.",
   "tags": ["tag1", "tag2", "tag3"],
-  "faqItems": [{"q": "question", "a": "answer"}, ...],
-  "keyFacts": [{"label": "label", "value": "value"}, ...]
+  "faqItems": [{"q": "question", "a": "answer"}],
+  "keyFacts": [{"label": "label", "value": "value"}]
 }`
 
     // 4. Generate with Opus
     const anthropic = getAnthropic()
     const genResponse = await anthropic.messages.create({
       model: ARTICLE_GEN_MODEL,
-      max_tokens: 4096,
-      system: systemPrompt,
+      max_tokens: 8192,
+      system: fullPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     })
 

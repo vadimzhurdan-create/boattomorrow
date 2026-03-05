@@ -7,7 +7,7 @@ import { getQuizConfig } from '@/lib/quiz-configs'
 import { HUMANIZER_SYSTEM_PROMPT } from '@/lib/prompts/humanizer'
 import slugify from 'slugify'
 
-export const maxDuration = 60
+export const maxDuration = 300
 
 export async function POST(request: NextRequest) {
   try {

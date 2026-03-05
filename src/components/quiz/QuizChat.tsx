@@ -128,7 +128,7 @@ export function QuizChat({
   const totalSteps = steps.length
   const progressPercent = totalSteps > 0 ? Math.round((currentStep / totalSteps) * 100) : 0
 
-  async function submitAnswer(answer: string) {
+  async function submitAnswer(answer: string, extraImageUrls?: string[]) {
     if (isSubmitting) return
     setIsSubmitting(true)
 
@@ -147,6 +147,7 @@ export function QuizChat({
           quizType: !sessionId ? (quizType === 'article' ? 'article' : 'profile') : undefined,
           stepIndex: currentStep,
           answer,
+          ...(extraImageUrls && extraImageUrls.length > 0 ? { imageUrls: extraImageUrls } : {}),
         }),
       })
 
@@ -267,7 +268,11 @@ export function QuizChat({
       toast.error('Please upload at least one photo')
       return
     }
-    submitAnswer(uploadedUrls.length > 0 ? `Uploaded ${uploadedUrls.length} photo(s)` : 'No photos uploaded')
+    // Pass uploadedUrls to persist them in the quiz session
+    submitAnswer(
+      uploadedUrls.length > 0 ? `Uploaded ${uploadedUrls.length} photo(s)` : 'No photos uploaded',
+      uploadedUrls.length > 0 ? uploadedUrls : undefined
+    )
   }
 
   async function handleGenerate() {
@@ -397,7 +402,7 @@ export function QuizChat({
                   ref={fileInputRef}
                   type="file"
                   className="hidden"
-                  accept="image/*"
+                  accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
                   multiple
                   onChange={handleFileUpload}
                 />
@@ -447,7 +452,7 @@ export function QuizChat({
           </Button>
           {isGenerating && (
             <p className="text-sm text-gray-500 text-center mt-3">
-              This may take 30-60 seconds. Please wait...
+              This may take up to 2 minutes. Please wait...
             </p>
           )}
         </div>

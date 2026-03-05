@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { sessionId, quizType, stepIndex, answer } = body
+    const { sessionId, quizType, stepIndex, answer, imageUrls } = body
 
     if (stepIndex === undefined || answer === undefined) {
       return NextResponse.json(
@@ -102,12 +102,21 @@ export async function POST(request: NextRequest) {
 
     const nextStep = stepIndex + 1
 
+    // Build update data
+    const updateData: any = {
+      answers: currentAnswers,
+      currentStep: nextStep,
+    }
+
+    // If imageUrls provided (upload step), persist them to session
+    if (Array.isArray(imageUrls) && imageUrls.length > 0) {
+      const existingUrls = quizSession.imageUrls || []
+      updateData.imageUrls = [...existingUrls, ...imageUrls]
+    }
+
     quizSession = await prisma.quizSession.update({
       where: { id: quizSession.id },
-      data: {
-        answers: currentAnswers,
-        currentStep: nextStep,
-      },
+      data: updateData,
     })
 
     return NextResponse.json({

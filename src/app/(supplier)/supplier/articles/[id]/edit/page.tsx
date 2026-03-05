@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback, useRef, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/Button'
 import { Input } from '@/components/ui/Input'
@@ -9,7 +9,8 @@ import { Select } from '@/components/ui/Select'
 import { Card, CardHeader, CardContent } from '@/components/ui/Card'
 import { Badge } from '@/components/ui/Badge'
 import { Skeleton } from '@/components/ui/Skeleton'
-import { statusColors, categoryLabels } from '@/lib/utils'
+import { statusColors } from '@/lib/utils'
+import { detectAIMarkers } from '@/lib/ai-detector'
 import toast from 'react-hot-toast'
 
 interface Article {
@@ -46,6 +47,7 @@ export default function EditArticlePage() {
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isHumanizing, setIsHumanizing] = useState(false)
   const [showPreview, setShowPreview] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [hasChanges, setHasChanges] = useState(false)
@@ -64,6 +66,12 @@ export default function EditArticlePage() {
   const [imageUrls, setImageUrls] = useState<string[]>([])
 
   const autoSaveTimerRef = useRef<NodeJS.Timeout | null>(null)
+
+  // AI detection - computed from content
+  const aiDetection = useMemo(() => {
+    if (!content || content.length < 100) return { score: 100, issues: [] }
+    return detectAIMarkers(content)
+  }, [content])
 
   useEffect(() => {
     async function fetchArticle() {
@@ -187,6 +195,35 @@ export default function EditArticlePage() {
     }
   }
 
+  async function handleHumanize() {
+    // Save current content first
+    await saveArticle(false)
+
+    setIsHumanizing(true)
+    try {
+      const res = await fetch('/api/quiz/humanize', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ articleId }),
+      })
+
+      if (!res.ok) {
+        const data = await res.json()
+        toast.error(data.error || 'Failed to humanize')
+        return
+      }
+
+      const data = await res.json()
+      setContent(data.data.content)
+      setHasChanges(true)
+      toast.success('Article humanized successfully')
+    } catch {
+      toast.error('Failed to humanize article')
+    } finally {
+      setIsHumanizing(false)
+    }
+  }
+
   async function handleCoverImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -279,6 +316,57 @@ export default function EditArticlePage() {
           )}
         </div>
       </div>
+
+      {/* AI Detection Warning */}
+      {isEditable && content.length > 100 && aiDetection.score < 70 && (
+        <div className="mb-6 border border-yellow-300 bg-yellow-50 rounded-lg p-4">
+          <div className="flex items-start justify-between">
+            <div>
+              <p className="text-sm font-medium text-yellow-800">
+                AI writing patterns detected (score: {aiDetection.score}/100)
+              </p>
+              <ul className="mt-2 text-xs text-yellow-700 space-y-1">
+                {aiDetection.issues.map((issue) => (
+                  <li key={issue.type}>
+                    <span className="font-medium">{issue.type}:</span>{' '}
+                    {issue.matches.join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleHumanize}
+              isLoading={isHumanizing}
+              className="ml-4 flex-shrink-0"
+            >
+              {isHumanizing ? 'Humanizing...' : 'Auto-humanize'}
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* AI Score Badge (good score) */}
+      {isEditable && content.length > 100 && aiDetection.score >= 70 && (
+        <div className="mb-6 border border-green-200 bg-green-50 rounded-lg px-4 py-3 flex items-center justify-between">
+          <p className="text-sm text-green-700">
+            Content quality score: <span className="font-medium">{aiDetection.score}/100</span>
+            {aiDetection.issues.length === 0 && ' \u2014 No AI patterns detected'}
+          </p>
+          {aiDetection.issues.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleHumanize}
+              isLoading={isHumanizing}
+              className="text-green-700"
+            >
+              Improve further
+            </Button>
+          )}
+        </div>
+      )}
 
       {showPreview ? (
         <Card>

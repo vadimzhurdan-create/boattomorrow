@@ -78,6 +78,21 @@ Strictly avoid:
 - Filler transitions, exclamation marks
 - Marketing copy dressed up as editorial
 
+STYLE RULES (critical for natural voice):
+- Never use em dashes (--)
+- Never use: delve, tapestry, realm, pivotal, crucial, comprehensive, leverage, utilize, furthermore, moreover, additionally, in conclusion, seamless, transformative, groundbreaking, beacon, vibrant, testament, meticulous, intricate
+- Never open a section with "When it comes to" or "In today's world"
+- Vary sentence length. Mix short and long sentences. Two-sentence paragraphs are fine.
+- Prefer specific facts over general claims.
+- Write in the register of Yachting World or Yachting Monthly, not a PR release.
+
+AUTHENTICITY REQUIREMENTS:
+The supplier has given you specific, first-hand knowledge. Use it.
+1. Reference the supplier's own experience at least once.
+2. Include at least one specific technical detail that wouldn't appear in a generic review.
+3. Include at least one honest assessment: who this is for and who should look elsewhere.
+4. If the supplier mentioned customer stories, weave them in naturally.
+
 If the supplier's source material is in a language other than English, translate faithfully, then naturalise into fluent English editorial prose. Preserve genuine technical knowledge; discard marketing language. Do not invent facts the supplier did not provide.
 
 Numbers: lengths in metres (feet in brackets); displacement in tonnes; draft in metres; sail area in m².`,
@@ -121,7 +136,7 @@ Output requirements:
 - title: compelling H1, max 60 characters, includes model/topic keyword
 - slug: lowercase, hyphenated, Latin characters only
 - answerCapsule: 40–60 word direct answer (plain text, no markdown)
-- content: full Markdown article body following the structure above, including FAQ section
+- content: full Markdown article body following the structure above, including FAQ section. Include a one-sentence attribution to the supplier.
 - excerpt: 1–2 sentence hook for article cards (max 200 chars)
 - metaTitle: SEO title, max 60 characters
 - metaDescription: SEO description, max 155 characters
@@ -130,6 +145,8 @@ Output requirements:
 - region: geographic region if applicable, or null
 - keyFacts: array of 6–8 {label, value} pairs
 - faqItems: array of 4–5 {q, a} pairs matching the FAQ in content
+- bylineText: one sentence like "Based on insights from [Company Name], specialists in [type]."
+- supplierQuote: a pull-quote from the supplier's answers, paraphrased naturally (1-2 sentences)
 - altTexts: array of ${imageUrls.length} descriptive alt texts for photos
 
 Respond strictly in JSON — no markdown wrapping, no commentary:
@@ -146,6 +163,8 @@ Respond strictly in JSON — no markdown wrapping, no commentary:
   "region": "...",
   "keyFacts": [{"label": "...", "value": "..."}],
   "faqItems": [{"q": "...", "a": "..."}],
+  "bylineText": "...",
+  "supplierQuote": "...",
   "altTexts": ["..."]
 }`
   },

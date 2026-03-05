@@ -139,6 +139,10 @@ model Article {
   keyFacts       Json?                    // [{ label: string, value: string }]
   lastReviewedAt DateTime?               // editorial review date for freshness
 
+  // E-E-A-T / humanization fields
+  bylineText     String?                  // "Written by X, based on Y years of experience..."
+  supplierQuote  String?                  // Pull-quote from supplier for sidebar
+
   // Cornerstone architecture
   isCornerstone  Boolean         @default(false)
   cornerstoneId  String?

@@ -2,8 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { getAnthropic, ARTICLE_GEN_MODEL } from '@/lib/anthropic'
+import { getAnthropic, ARTICLE_GEN_MODEL, QUIZ_MODEL } from '@/lib/anthropic'
 import { getQuizConfig } from '@/lib/quiz-configs'
+import { HUMANIZER_SYSTEM_PROMPT } from '@/lib/prompts/humanizer'
 import slugify from 'slugify'
 
 export const maxDuration = 60
@@ -81,7 +82,7 @@ export async function POST(request: NextRequest) {
       generatePrompt += `\n\nContextual interlinking — use 2–4 of these links naturally in the article text where relevant. Do not force them:\n${contextLinks}`
     }
 
-    // Call Anthropic Claude API
+    // Step 1: Generate article with Opus
     const anthropic = getAnthropic()
     const response = await anthropic.messages.create({
       model: ARTICLE_GEN_MODEL,
@@ -101,7 +102,6 @@ export async function POST(request: NextRequest) {
 
     let generatedData: any
     try {
-      // Try to parse raw, or extract JSON from markdown code blocks
       let jsonText = textContent.text.trim()
       const jsonMatch = jsonText.match(/```(?:json)?\s*([\s\S]*?)```/)
       if (jsonMatch) {
@@ -115,6 +115,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Step 2: Humanizer pass with Sonnet — rewrite content for natural voice
+    let humanizedContent = generatedData.content
+    try {
+      const humanizerResponse = await anthropic.messages.create({
+        model: QUIZ_MODEL,
+        max_tokens: 8192,
+        system: HUMANIZER_SYSTEM_PROMPT,
+        messages: [
+          {
+            role: 'user',
+            content: `Rewrite this article draft following your editorial rules.
+Preserve all factual information, the structure, and the SEO elements
+(H2 headings, FAQ section, key facts). Only change the style and language.
+
+ARTICLE:
+${generatedData.content}`,
+          },
+        ],
+      })
+
+      const humanizerText = humanizerResponse.content.find((block) => block.type === 'text')
+      if (humanizerText && humanizerText.type === 'text') {
+        humanizedContent = humanizerText.text
+      }
+    } catch (humanizerError) {
+      // If humanizer fails, proceed with original content
+      console.warn('Humanizer pass failed, using original content:', humanizerError)
+    }
+
     // Generate a unique slug
     let articleSlug = generatedData.slug || slugify(generatedData.title, { lower: true, strict: true })
     const existingSlug = await prisma.article.findUnique({
@@ -124,14 +153,14 @@ export async function POST(request: NextRequest) {
       articleSlug = `${articleSlug}-${Date.now()}`
     }
 
-    // Create article record with GEO/AEO fields
+    // Create article record with GEO/AEO + humanization fields
     const article = await prisma.article.create({
       data: {
         supplierId: session.user.supplierId,
         supplierType: session.user.supplierType,
         title: (generatedData.title || '').slice(0, 255),
         slug: articleSlug.slice(0, 255),
-        content: generatedData.content,
+        content: humanizedContent,
         excerpt: generatedData.excerpt || null,
         metaTitle: generatedData.metaTitle ? generatedData.metaTitle.slice(0, 255) : null,
         metaDescription: generatedData.metaDescription ? generatedData.metaDescription.slice(0, 500) : null,
@@ -146,6 +175,9 @@ export async function POST(request: NextRequest) {
         answerCapsule: generatedData.answerCapsule || null,
         faqItems: generatedData.faqItems || null,
         keyFacts: generatedData.keyFacts || null,
+        // E-E-A-T / humanization fields
+        bylineText: generatedData.bylineText || null,
+        supplierQuote: generatedData.supplierQuote || null,
       },
     })
 

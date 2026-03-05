@@ -281,6 +281,13 @@ export default async function ArticlePage({ params }: PageProps) {
               </span>
             </div>
           </div>
+
+          {/* Byline text — E-E-A-T signal */}
+          {article.bylineText && (
+            <p className="mt-3 text-xs text-muted italic">
+              {article.bylineText}
+            </p>
+          )}
         </header>
 
         {/* Cover Image */}
@@ -310,6 +317,18 @@ export default async function ArticlePage({ params }: PageProps) {
               ))}
             </dl>
           </aside>
+        )}
+
+        {/* Supplier Quote — pullquote */}
+        {article.supplierQuote && (
+          <blockquote className="max-w-[680px] mx-auto my-8 pl-6 border-l-2 border-accent">
+            <p className="text-lg text-muted italic leading-relaxed font-body">
+              {article.supplierQuote}
+            </p>
+            <cite className="block mt-2 text-xs text-muted not-italic uppercase tracking-widest">
+              {article.supplier.name}
+            </cite>
+          </blockquote>
         )}
 
         {/* Article Body */}

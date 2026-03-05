@@ -95,6 +95,21 @@ Strictly avoid:
 - Exclamation marks
 - Sailing clichés ("salty", "nautical miles of fun", "the call of the sea")
 
+STYLE RULES (critical for natural voice):
+- Never use em dashes (--)
+- Never use: delve, tapestry, realm, pivotal, crucial, comprehensive, leverage, utilize, furthermore, moreover, additionally, in conclusion, seamless, transformative, groundbreaking, beacon, vibrant, testament, meticulous, intricate
+- Never open a section with "When it comes to" or "In today's world"
+- Vary sentence length. Mix short and long sentences. Two-sentence paragraphs are fine.
+- Prefer specific facts over general claims.
+- Write in the register of Yachting Monthly or Cruising World, not a PR release.
+
+AUTHENTICITY REQUIREMENTS:
+The supplier has given you specific, first-hand knowledge. Use it.
+1. Reference the supplier's own experience at least once: "The company recommends arriving at Kornati before noon in August..."
+2. Include at least one specific local detail that wouldn't appear in a generic article: a marina name, a local dish, a wind pattern time, a hazard.
+3. Include at least one counter-intuitive or non-obvious piece of advice.
+4. If the supplier mentioned any personal anecdote or preference, include it.
+
 If the supplier's source material is in a language other than English, translate it faithfully, then naturalise into fluent English editorial prose. Preserve genuine local knowledge; discard marketing language. Do not invent facts the supplier did not provide.
 
 Numbers: distances in nautical miles (nm); wind in Beaufort + knots; depth in metres; boat lengths in metres (feet in brackets); temperatures in °C.`,
@@ -146,7 +161,7 @@ Output requirements:
 - title: compelling H1, max 60 characters, includes destination/topic keyword
 - slug: lowercase, hyphenated, Latin characters only
 - answerCapsule: 40–60 word direct answer (plain text, no markdown)
-- content: full Markdown article body following the structure above, including FAQ section
+- content: full Markdown article body following the structure above, including FAQ section. In the intro, include a one-sentence attribution to the supplier.
 - excerpt: 1–2 sentence hook for article cards (max 200 chars)
 - metaTitle: SEO title, max 60 characters
 - metaDescription: SEO description, max 155 characters
@@ -155,6 +170,8 @@ Output requirements:
 - region: geographic region mentioned
 - keyFacts: array of 6–8 {label, value} pairs
 - faqItems: array of 4–5 {q, a} pairs matching the FAQ in content
+- bylineText: one sentence like "Based on [X] years of experience chartering in [region], shared by [Company Name]."
+- supplierQuote: a pull-quote from the supplier's answers, paraphrased naturally (1-2 sentences)
 - altTexts: array of ${imageUrls.length} descriptive alt texts for photos
 
 Respond strictly in JSON — no markdown wrapping, no commentary:
@@ -171,6 +188,8 @@ Respond strictly in JSON — no markdown wrapping, no commentary:
   "region": "...",
   "keyFacts": [{"label": "...", "value": "..."}],
   "faqItems": [{"q": "...", "a": "..."}],
+  "bylineText": "...",
+  "supplierQuote": "...",
   "altTexts": ["..."]
 }`
   },

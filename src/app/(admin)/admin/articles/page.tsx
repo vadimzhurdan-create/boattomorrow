@@ -44,7 +44,7 @@ export default function AdminArticlesPage() {
         params.set('status', statusFilter)
       }
 
-      const res = await fetch(`/api/articles?${params}`)
+      const res = await fetch(`/api/admin/articles?${params}`)
       const data = await res.json()
       setArticles(data.data || [])
     } catch {
@@ -59,10 +59,10 @@ export default function AdminArticlesPage() {
 
     setActionLoading(articleId)
     try {
-      const res = await fetch(`/api/articles/${articleId}`, {
+      const res = await fetch('/api/admin/articles', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'published' }),
+        body: JSON.stringify({ articleId, action: 'approve' }),
       })
 
       if (!res.ok) throw new Error('Failed to approve')
@@ -82,10 +82,10 @@ export default function AdminArticlesPage() {
 
     setActionLoading(articleId)
     try {
-      const res = await fetch(`/api/articles/${articleId}`, {
+      const res = await fetch('/api/admin/articles', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status: 'rejected' }),
+        body: JSON.stringify({ articleId, action: 'reject' }),
       })
 
       if (!res.ok) throw new Error('Failed to reject')
